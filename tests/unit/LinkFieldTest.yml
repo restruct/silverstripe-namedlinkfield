@@ -1,0 +1,10 @@
+Page:
+  test1:
+    Title: link-field-test-page
+LinkFieldTest_DataObject:
+   test1:
+      LinkPageID: NULL
+      LinkCustomURL: http://leftrightandcentre.com.au
+   test2:
+      LinkPageID: =>Page.test1
+      LinkCustomURL: ''

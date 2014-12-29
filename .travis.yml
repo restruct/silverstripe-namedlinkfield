@@ -1,0 +1,24 @@
+language: php 
+php: 
+ - 5.3
+ - 5.4
+
+env:
+ - TESTDB=MYSQL CORE_RELEASE=master
+ - TESTDB=PGSQL CORE_RELEASE=master
+
+matrix:
+  exclude:
+    - php: 5.4
+      env: TESTDB=PGSQL CORE_RELEASE=master
+
+before_script:
+ - pear -q install --onlyreqdeps pear/PHP_CodeSniffer
+ - phpenv rehash
+ - chmod a+x tests/travis/before_script
+ - ./tests/travis/before_script ~/builds/ss 
+ - cd ~/builds/ss
+
+script: 
+ - phpunit link-field/tests/
+ - phpcs --encoding=utf-8 --tab-width=4 --standard=link-field/tests/phpcs -np link-field

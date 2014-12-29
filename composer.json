@@ -1,0 +1,23 @@
+{
+    "name": "micschk/namedlinkfield",
+    "description": "A SilverStripe field type for having an internal or external link *with title*, in a single field with a nicely styled form. Based on the LinkField module by Simon Elvery & Left, Right Centre.",
+    "type": "silverstripe-module",
+    "keywords": ["silverstripe", "field"],
+	"homepage": "https://github.com/micschk/silverstripe-namedlinkfield/",
+    "authors": [
+        {
+            "name": "Restruct web & apps",
+			"email": "mail@restruct.nl"
+        }
+    ],
+    "require": {
+		"silverstripe/framework": "3.*",
+        "silverstripe/cms": "3.*"
+    },
+	"support": {
+		"issues": "https://github.com/micschk/silverstripe-namedlinkfield/issues?state=open"
+	},
+	"installer-name": {
+		"installer": "namedlinkfield"
+	}
+}
