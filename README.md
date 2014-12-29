@@ -7,5 +7,5 @@ A single field which allows users to either select a page from the site tree or 
 
 ## Screenshot
 
-![](docs/namedlinkfield.png)
+![](docs/namedlinkfield-screen.png)
 Pick either internal or external, fields are auto-updated
