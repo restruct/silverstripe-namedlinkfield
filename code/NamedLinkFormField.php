@@ -116,14 +116,14 @@ class NamedLinkFormField extends FormField {
 		
 		$fieldName = $this->name;
 		if($dataObject->hasMethod("set$fieldName")) {
-			$dataObject->$fieldName = DBField::create('LinkField', array(
+			$dataObject->$fieldName = DBField::create('NamedLinkField', array(
 				"PageID" => $this->fieldPageID->Value(),
 				"CustomURL" => $this->fieldCustomURL->Value(),
 				"Title" => $this->fieldTitle->Value(),
 				"Linkmode" => $this->fieldLinkmode->Value()
 			));
 		} else {
-			if(!is_object($dataObject->$fieldName)) $dataObject->$fieldName = LinkField::create();
+			if(!is_object($dataObject->$fieldName)) $dataObject->$fieldName = NamedLinkField::create();
 			$dataObject->$fieldName->setPageID($this->fieldPageID->Value()); 
 			$dataObject->$fieldName->setCustomURL($this->fieldCustomURL->Value());
 			$dataObject->$fieldName->setTitle($this->fieldTitle->Value()); 
