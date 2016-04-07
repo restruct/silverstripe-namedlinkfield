@@ -21,6 +21,7 @@ private static $db = array(
 ![](docs/screen-page.png)
 ![](docs/screen-file.png)
 ![](docs/screen-email.png)
+
 Pick page & text-anchor, file, e-mail or (external) URL. Fields will be auto-updated.
 
 ## TODO
