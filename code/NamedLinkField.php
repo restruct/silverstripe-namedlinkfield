@@ -2,9 +2,7 @@
 
 /**
  * A link field which will store a link in the database.
- * 
- * @author Simon Elvery
- * @package silverstripe-link-field
+ *
  */
 class NamedLinkField extends DBField implements CompositeDBField {
 	
@@ -14,10 +12,20 @@ class NamedLinkField extends DBField implements CompositeDBField {
 	protected $page_id;
 
 	/**
-	 * @var string A custom URL for this link
+	 * @var string A custom URL for this link (or e-mail address)
 	 */
 	protected $custom_url;
-	
+
+	/**
+	 * @var int The FileID for this link.
+	 */
+	protected $file_id;
+
+	/**
+	 * @var string A custom URL for this link
+	 */
+	protected $page_anchor;
+
 	/**
 	 * @var string A title for this link.
 	 */
@@ -45,9 +53,11 @@ class NamedLinkField extends DBField implements CompositeDBField {
 	private static $composite_db = array(
 		//'PageID' => 'Int',
 		'PageID' => 'Varchar', // seems only way to prevent "Column 'LinkPageID' cannot be null" error
+		'PageAnchor' => 'Varchar',
+		'FileID' => 'Varchar',
 		'CustomURL' => 'Varchar(2000)',
 		'Title' => 'Varchar(255)',
-		'Linkmode' => "Enum(array('internal','external'))"
+		'Linkmode' => "Enum(array('Page','URL','File','Email','external','internal'))" // ext/int are legacy and will be removed
 	);
 	
 	public function __construct($name = null) {
@@ -72,9 +82,11 @@ class NamedLinkField extends DBField implements CompositeDBField {
 	public function setValue($value, $record = null, $markChanged = true){
 		
 		if ($value instanceof NamedLinkField && $value->exists()) {
-			
+
 			$this->setPageID($value->getPageID(), $markChanged);
+			$this->setPageAnchor($value->getPageAnchor(), $markChanged);
 			$this->setCustomURL($value->getCustomURL(), $markChanged);
+			$this->setFileID($value->getFileID(), $markChanged);
 			$this->setTitle($value->getTitle(), $markChanged);
 			$this->setLinkmode($value->getLinkmode(), $markChanged);
 		} elseif ( $record && 
@@ -87,8 +99,16 @@ class NamedLinkField extends DBField implements CompositeDBField {
 				(isset($record[$this->name . 'PageID'])) ? $record[$this->name . 'PageID'] : null, 
 				$markChanged
 			);
+			$this->setPageAnchor(
+				(isset($record[$this->name . 'PageAnchor'])) ? $record[$this->name . 'PageAnchor'] : null,
+				$markChanged
+			);
 			$this->setCustomURL(
 				(isset($record[$this->name . 'CustomURL'])) ? $record[$this->name . 'CustomURL'] : null,
+				$markChanged
+			);
+			$this->setFileID(
+				(isset($record[$this->name . 'FileID'])) ? $record[$this->name . 'FileID'] : null,
 				$markChanged
 			);
 			$this->setTitle(
@@ -99,13 +119,19 @@ class NamedLinkField extends DBField implements CompositeDBField {
 				(isset($record[$this->name . 'Linkmode'])) ? $record[$this->name . 'Linkmode'] : null,
 				$markChanged
 			);
+
 		} else if (is_array($value)) {
 			if (array_key_exists('PageID', $value)) {
 				$this->setPageID($value['PageID'], $markChanged);
 			}
-			
+			if (array_key_exists('PageID', $value)) {
+				$this->setPageAnchor($value['PageAnchor'], $markChanged);
+			}
 			if (array_key_exists('CustomURL', $value)) {
 				$this->setCustomURL($value['CustomURL'], $markChanged);
+			}
+			if (array_key_exists('PageID', $value)) {
+				$this->setFileID($value['FileID'], $markChanged);
 			}
 			if (array_key_exists('Title', $value)) {
 				$this->setTitle($value['Title'], $markChanged);
@@ -151,14 +177,28 @@ class NamedLinkField extends DBField implements CompositeDBField {
 			$manipulation['fields'][$this->name.'PageID'] = 
 					DBField::create_field('Int', $this->getPageID())->nullValue();
 		}
-		
+
+		if($this->getPageAnchor()) {
+			$manipulation['fields'][$this->name.'PageAnchor'] = $this->prepValueForDB($this->getPageAnchor());
+		} else {
+			$manipulation['fields'][$this->name.'PageAnchor'] =
+					DBField::create_field('Varchar', $this->getPageAnchor())->nullValue();
+		}
+
 		if($this->getCustomURL()) {
 			$manipulation['fields'][$this->name.'CustomURL'] = $this->prepValueForDB($this->getCustomURL());
 		} else {
-			$manipulation['fields'][$this->name.'CustomURL'] = 
+			$manipulation['fields'][$this->name.'CustomURL'] =
 					DBField::create_field('Varchar', $this->getCustomURL())->nullValue();
 		}
-		
+
+		if($this->getFileID()) {
+			$manipulation['fields'][$this->name.'FileID'] = $this->prepValueForDB((int)$this->getFileID());
+		} else {
+			$manipulation['fields'][$this->name.'FileID'] =
+					DBField::create_field('Int', $this->getFileID())->nullValue();
+		}
+
 		if($this->getTitle()) {
 			$manipulation['fields'][$this->name.'Title'] = $this->prepValueForDB($this->getTitle());
 		} else {
@@ -215,7 +255,7 @@ class NamedLinkField extends DBField implements CompositeDBField {
 	 * @return boolean
 	 */
 	public function exists(){
-		return ( $this->page_id > 0 || $this->custom_url !== null || $this->title !== null );
+		return ( $this->page_id > 0 || $this->file_id > 0 || $this->custom_url !== null && $this->title !== null );
 	}
 	
 	public function getPageID() {
@@ -226,16 +266,34 @@ class NamedLinkField extends DBField implements CompositeDBField {
 		$this->isChanged = $markChanged;
 		$this->page_id = (int) $page_id;
 	}
-	
+
+	public function getPageAnchor() {
+		return $this->page_anchor;
+	}
+
+	public function setPageAnchor($anchor, $markChanged = true) {
+		$this->isChanged = $markChanged;
+		$this->page_anchor = $anchor;
+	}
+
+	public function getFileID() {
+		return $this->file_id;
+	}
+
+	public function setFileID($file_id, $markChanged = true) {
+		$this->isChanged = $markChanged;
+		$this->file_id = (int) $file_id;
+	}
+
 	public function getCustomURL() {
 		return $this->custom_url;
 	}
-	
+
 	public function setCustomURL($url, $markChanged = true) {
 		$this->isChanged = $markChanged;
 		$this->custom_url = $url;
 	}
-	
+
 	public function getTitle() {
 		return $this->title;
 	}
@@ -246,6 +304,10 @@ class NamedLinkField extends DBField implements CompositeDBField {
 	}
 	
 	public function getLinkmode() {
+		// legacy linkmodes
+		if($this->linkmode == 'external') return 'URL';
+		if($this->linkmode == 'internal') return 'Page';
+
 		return $this->linkmode;
 	}
 	
@@ -274,26 +336,65 @@ class NamedLinkField extends DBField implements CompositeDBField {
 		}
 		return null;
 	}
-	
+
+	public function File() {
+		if ($this->getFileID() && $file = DataObject::get_by_id('File', $this->getFileID())) {
+			return $file;
+		}
+		return null;
+	}
+
+	public function getEmail() {
+		if ($this->linkmode=='Email' && filter_var($this->getCustomURL(), FILTER_VALIDATE_EMAIL)) {
+			return "mailto:".$this->getCustomURL();
+		}
+		return null;
+	}
+
 	public function getURL() {
-		if ( $this->linkmode == "external" ) {
-			$url = $this->getCustomURL();
-			// add default http if no URL_SCHEME present
-			if( parse_url($url, PHP_URL_SCHEME) === null ){
-				$url = 'http://' . $url;
-			}
-			return Convert::raw2htmlatt($url);
-		} else if ( $page = $this->Page() ){ return $page->AbsoluteLink(); } 
+		switch($this->linkmode){
+
+			case "URL" :
+				$url = $this->getCustomURL();
+				// add default http if no URL_SCHEME present
+				if( parse_url($url, PHP_URL_SCHEME) === null ){
+					$url = 'http://' . $url;
+				}
+				return Convert::raw2htmlatt($url);
+
+			case "Page" :
+				$url = '';
+				if($page = $this->Page()) $url = $page->AbsoluteLink();
+				if ($anchor = $this->getPageAnchor()){ $url .= "#$anchor"; }
+				return Convert::raw2htmlatt($url);
+
+			case "Email" :
+				return Convert::raw2htmlatt($this->getEmail());
+
+			default : // File
+				if($file = $this->File()) $file->AbsoluteLink();
+
+		}
+
 	}
 	
 	public function __toString() {
 		return (string) $this->getURL();
 	}
 
+	public function Absolute() {
+		$relative = $this->getURL();
+		return (Director::is_site_url($relative) && Director::is_relative_url($relative))
+			? Controller::join_links(Director::protocolAndHost(), $relative)
+			: $relative;
+	}
+
 	public function forTemplate() {
 		return new ArrayList( array(
 			'Page' => $this->Page(),
-			'CustomURL' => 'Varchar(2000)',
+			'Anchor' => $this->getPageAnchor(),
+			'File' => $this->File(),
+			'Email' => $this->getEmail(),
 			'URL' => $this->getURL(),
 			'Title' => $this->Title,
 			'Linkmode' => $this->linkmode,
@@ -318,13 +419,6 @@ class NamedLinkField extends DBField implements CompositeDBField {
 //
 //		return new ArrayList($items);
 //	}
-
-	public function Absolute() {
-		$relative = $this->getURL();
-		return (Director::is_site_url($relative) && Director::is_relative_url($relative)) 
-			? Controller::join_links(Director::protocolAndHost(), $relative) 
-			: $relative;
-	}
 	
 	
 }

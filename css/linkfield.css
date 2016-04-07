@@ -5,8 +5,13 @@
     Description:
         Allow for a little styling of the inserted linkfield
 */
-
-.fieldgroupField.LinkFormFieldCustomURL { margin-top: 6px; }
+.LinkFormField { max-width: 513px; }
+.fieldgroupField.LinkFormFieldCustomURL .fieldholder-small,
+.fieldgroupField.LinkFormFieldPageID .fieldholder-small,
+.fieldgroupField.LinkFormFieldFileID .fieldholder-small
+{
+    margin-top: 6px;
+}
 .LinkFormField label.right { margin-left: 0px; }
 
 .field select.LinkModePicker { width: 130px; }
@@ -28,3 +33,13 @@
 
 /*#TreeDropdownField_Form_ItemEditForm_Link-PageID { display: inline-block; margin-left: 10px; }*/
 
+.LinkFormFieldPageID {
+    width: 335px;
+    float: left;
+}
+.LinkFormFieldPageAnchor {
+    float: left;
+    margin: 6px 0 0 6px;
+    width: 172px;
+}
+.LinkFormFieldPageAnchor label { display: none; }

@@ -2,7 +2,8 @@
 /**
  * Description of LinkFormField
  *
- * @author Simon
+ * @TODO: check http://localhost/1_documentation/ss-3.3/source-class-HtmlEditorField_Toolbar.html#_LinkForm
+ * for inline adding of files etc
  */
 class NamedLinkFormField extends FormField {
 	
@@ -13,18 +14,30 @@ class NamedLinkFormField extends FormField {
 	);
 
 	private static $allowed_actions = array(
-		'tree'
+		'tree', // treedropdown (Page)
+		'treefile', // treedropdown (File)
+		'load' // dependentdropdown
 	);
 	
 	/**
 	 * @var FormField
 	 */
 	protected $fieldPageID = null;
+
+	/**
+	 * @var FormField
+	 */
+	protected $fieldFileID = null;
 	
 	/**
 	 * @var FormField
 	 */
 	protected $fieldCustomURL = null;
+
+	/**
+	 * @var FormField
+	 */
+	protected $fieldPageAnchor = null;
 	
 	/**
 	 * @var FormField
@@ -35,25 +48,62 @@ class NamedLinkFormField extends FormField {
 	 * @var FormField
 	 */
 	protected $fieldLinkmode = null;
-	
+
 	public function __construct($name, $title = null, $value = null, $form = null) {
-		
+
+		// Create a callable function that returns an array of options for the DependentDropdownField.
+		// When the value of the field it depends on changes, this function is called passing the
+		// updated value as the first parameter ($val)
+		$getanchors = function($page_id) {
+			// Copied from HtmlEditorField_Toolbar::getanchors()
+			if (($page = Page::get()->byID($page_id)) && !empty($page)) {
+//			if (!$page->canView()) { /* ERROR? */ }
+				// Similar to the regex found in HtmlEditorField.js / getAnchors method.
+				if (preg_match_all("/\s(name|id)=\"([^\"]+?)\"|\s(name|id)='([^']+?)'/im", $page->Content, $matches)) {
+//					var_dump(array_filter(array_merge($matches[2], $matches[4])));
+					return array_filter(array_merge($matches[2], $matches[4]));
+				}
+			}
+		};
+
+
 		// naming with underscores to prevent values from actually being saved somewhere
 		$this->fieldCustomURL = new TextField("{$name}[CustomURL]", '', '', 300, $form);
-		$this->fieldPageID = new TreeDropdownField("{$name}[PageID]", '', 'SiteTree', 'ID', 'Title');
+		$this->fieldPageID = new TreeDropdownField("{$name}[PageID]", '', 'SiteTree', 'ID', 'MenuTitle');
+		$this->fieldPageID->setForm($form);
+//		$this->fieldPageAnchor = new DropdownField("{$name}[PageAnchor]", 'Anchor:',array(), '', $form);
+		// The DependentDropdownField, setting the source as the callable function
+		// and setting the field it depends on to the appropriate field
+		$this->fieldPageAnchor = DependentDropdownField::create(
+				"{$name}[PageAnchor]",
+				'Text-anchor:',
+//				$this->getAnchors,
+				$getanchors,
+				$form
+			)
+			->setEmptyString('Page anchor: (none)')
+			->setDepends($this->fieldPageID)
+//			->setHasEmptyDefault(true)
+		;
+		$this->fieldFileID = new TreeDropdownField("{$name}[FileID]", '', 'File', 'ID', 'Name');
+		$this->fieldFileID->addExtraClass('filetree');
+		$this->fieldFileID->setForm($form);
 		$this->fieldTitle = new TextField("{$name}[Title]", 'Title: ', '', 300, $form);
-		$this->fieldLinkmode = new DropdownField("{$name}[Linkmode]", 'Type: ', 
+		$this->fieldLinkmode = new DropdownField("{$name}[Linkmode]", 'Type: ',
 				array(
-					'internal' => 'Internal',
-					'external' => 'External'
+					'Page' => 'Page',
+					'URL' => 'URL',
+					'File' => 'File',
+					'Email' => 'Email',
 				), '', $form);
 		$this->fieldLinkmode->addExtraClass('LinkModePicker');
-		$this->fieldPageID->setForm($form);
 		parent::__construct($name, $title, $value, $form);
 	}
 
 	public function setForm($form) {
 		$this->fieldPageID->setForm($form);
+		$this->fieldPageAnchor->setForm($form);
+		$this->fieldFileID->setForm($form);
 		$this->fieldCustomURL->setForm($form);
 		$this->fieldTitle->setForm($form);
 		$this->fieldLinkmode->setForm($form);
@@ -62,6 +112,8 @@ class NamedLinkFormField extends FormField {
 
 	public function setName($name){
 		$this->fieldPageID->setName("{$name}[PageID]");
+		$this->fieldPageAnchor->setName("{$name}[PageAnchor]");
+		$this->fieldFileID->setName("{$name}[FileID]");
 		$this->fieldCustomURL->setName("{$name}[CustomURL]");
 		$this->fieldTitle->setName("{$name}[Title]");
 		$this->fieldLinkmode->setName("{$name}[Linkmode]");
@@ -83,11 +135,19 @@ class NamedLinkFormField extends FormField {
 			"</div>" . 
 			"<div class=\"fieldgroupField LinkFormFieldPageID\">" . 
 				$this->fieldPageID->SmallFieldHolder() . 
-				'<label class="right">(&uarr; Select internal page to link to (click again to unset))</label>' .
-			"</div>" . 
-			"<div class=\"fieldgroupField LinkFormFieldCustomURL\">" . 
+				'<label class="right">(&uarr; Select Page to link to (click again to unset))</label>' .
+			"</div>" .
+			"<div class=\"fieldgroupField LinkFormFieldPageAnchor\">" .
+				$this->fieldPageAnchor->SmallFieldHolder() .
+//				'<label class="right">(&uarr; Anchor on page (optional))</label>' .
+			"</div>" .
+			"<div class=\"fieldgroupField LinkFormFieldFileID\">" .
+				$this->fieldFileID->SmallFieldHolder() .
+				'<label class="right">(&uarr; Select File to link to (click again to unset))</label>' .
+			"</div>" .
+			"<div class=\"fieldgroupField LinkFormFieldCustomURL\">" .
 				$this->fieldCustomURL->SmallFieldHolder() . 
-				'<label class="right">(&uarr; Enter external URL)</label>' .
+				'<label class="right">(&uarr; Enter URL/E-mail)</label>' .
 			"</div>" .
 		"</div>";
 	}
@@ -97,11 +157,15 @@ class NamedLinkFormField extends FormField {
 		$this->value = $val;
 		if(is_array($val)) {
 			$this->fieldPageID->setValue($val['PageID']);
+			$this->fieldPageAnchor->setValue($val['PageAnchor']);
+			$this->fieldFileID->setValue($val['FileID']);
 			$this->fieldCustomURL->setValue($val['CustomURL']);
 			$this->fieldTitle->setValue($val['Title']);
 			$this->fieldLinkmode->setValue($val['Linkmode']);
 		} elseif($val instanceof NamedLinkField) {
 			$this->fieldPageID->setValue($val->getPageID());
+			$this->fieldPageAnchor->setValue($val->getPageAnchor());
+			$this->fieldFileID->setValue($val->getFileID());
 			$this->fieldCustomURL->setValue($val->getCustomURL());
 			$this->fieldTitle->setValue($val->getTitle());
 			$this->fieldLinkmode->setValue($val->getLinkmode());
@@ -118,6 +182,8 @@ class NamedLinkFormField extends FormField {
 		if($dataObject->hasMethod("set$fieldName")) {
 			$dataObject->$fieldName = DBField::create('NamedLinkField', array(
 				"PageID" => $this->fieldPageID->Value(),
+				"PageAnchor" => $this->fieldPageAnchor->Value(),
+				"FileID" => $this->fieldFileID->Value(),
 				"CustomURL" => $this->fieldCustomURL->Value(),
 				"Title" => $this->fieldTitle->Value(),
 				"Linkmode" => $this->fieldLinkmode->Value()
@@ -125,8 +191,10 @@ class NamedLinkFormField extends FormField {
 		} else {
 			if(!is_object($dataObject->$fieldName)) $dataObject->$fieldName = NamedLinkField::create();
 			$dataObject->$fieldName->setPageID($this->fieldPageID->Value()); 
+			$dataObject->$fieldName->setPageAnchor($this->fieldPageAnchor->Value());
 			$dataObject->$fieldName->setCustomURL($this->fieldCustomURL->Value());
-			$dataObject->$fieldName->setTitle($this->fieldTitle->Value()); 
+			$dataObject->$fieldName->setFileID($this->fieldFileID->Value());
+			$dataObject->$fieldName->setTitle($this->fieldTitle->Value());
 			$dataObject->$fieldName->setLinkmode($this->fieldLinkmode->Value());
 		}
 	}
@@ -147,20 +215,42 @@ class NamedLinkFormField extends FormField {
 		
 		if($bool) {
 			$this->fieldPageID = $this->fieldPageID->performReadonlyTransformation();
+			$this->fieldPageAnchor = $this->fieldPageAnchor->performReadonlyTransformation();
 			$this->fieldCustomURL = $this->fieldCustomURL->performReadonlyTransformation();
+			$this->fieldFileID = $this->fieldFileID->performReadonlyTransformation();
 			$this->fieldTitle = $this->fieldTitle->performReadonlyTransformation();
 			$this->fieldLinkmode = $this->fieldLinkmode->performReadonlyTransformation();
 		}
 	}
-	
+
+	// pass the request on to TreeDropdown
+	public function treefile($request)
+	{
+		return $this->fieldFileID->tree($request);
+	}
+
+	// pass the request on to TreeDropdown
 	public function tree($request) {
-//		return str_replace(
-//			"<ul class=\"tree\">\n", 
-//			"<ul class=\"tree\">\n" . '<li id="selector-' . $this->name . '[PageID]-0"><a>(None / Custom URL)</a></li>',
-//			$this->fieldPageID->tree($request)
-//		);
 		return $this->fieldPageID->tree($request);
 	}
-	
+
+	// pass the request on to DependentDropdown
+	public function load($request)
+	{
+		return $this->fieldPageAnchor->load($request);
+	}
+
+//	public function getAnchors($page_id) {
+//		// Copied from HtmlEditorField_Toolbar::getanchors()
+//		if (($page = Page::get()->byID($page_id)) && !empty($page)) {
+////			if (!$page->canView()) { /* ERROR? */ }
+//			// Similar to the regex found in HtmlEditorField.js / getAnchors method.
+//			if (preg_match_all("/\s(name|id)=\"([^\"]+?)\"|\s(name|id)='([^']+?)'/im", $page->Content, $matches)) {
+//				return array_filter(array_merge($matches[2], $matches[4]));
+//			}
+//		}
+//	}
+
+
 }
 

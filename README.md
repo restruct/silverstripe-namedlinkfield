@@ -1,11 +1,28 @@
 # A link field (with title) for SilverStripe
 
-A single field which allows users to either select a page from the site tree or define a custom URL to link to, and add a title/name to the link.
+A single inline link field which allows users to set a title/name for the link, 
+and select a page + optional text-anchor from the site tree, a file from 
+the assets dir, an e-mail address (mailto link), or
+define a custom URL to link to.
+
+## Usage
+```php
+private static $db = array(
+    'NextAction' => 'NamedLinkField', // A NamedLinkFormField will be scaffolded
+);
+```
 
 ## Requirements
 * SilverStripe CMS 3.0 or greater
+* Dependentdropdownfield (for in-page text-anchor selection)
 
-## Screenshot
+## Screenshots
 
-![](docs/namedlinkfield-screen.png)
-Pick either internal or external, fields are auto-updated
+![](docs/screen-page.png)
+![](docs/screen-file.png)
+![](docs/screen-email.png)
+Pick page & text-anchor, file, e-mail or (external) URL. Fields will be auto-updated.
+
+## TODO
+* Check source-class-HtmlEditorField_Toolbar.html#_LinkForm for inline uploading of files etc
+* Make translatable/i18n
