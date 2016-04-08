@@ -124,7 +124,7 @@ class NamedLinkField extends DBField implements CompositeDBField {
 			if (array_key_exists('PageID', $value)) {
 				$this->setPageID($value['PageID'], $markChanged);
 			}
-			if (array_key_exists('PageID', $value)) {
+			if (array_key_exists('PageAnchor', $value)) {
 				$this->setPageAnchor($value['PageAnchor'], $markChanged);
 			}
 			if (array_key_exists('CustomURL', $value)) {
@@ -356,10 +356,10 @@ class NamedLinkField extends DBField implements CompositeDBField {
 
 			case "URL" :
 				$url = $this->getCustomURL();
-				// add default http if no URL_SCHEME present
-				if( parse_url($url, PHP_URL_SCHEME) === null ){
-					$url = 'http://' . $url;
-				}
+				// add default http if no URL_SCHEME present (NO, relative urls should be possible)
+//				if( parse_url($url, PHP_URL_SCHEME) === null ){
+//					$url = 'http://' . $url;
+//				}
 				return Convert::raw2htmlatt($url);
 
 			case "Page" :
