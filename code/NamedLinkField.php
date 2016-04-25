@@ -17,6 +17,11 @@ class NamedLinkField extends DBField implements CompositeDBField {
 	protected $custom_url;
 
 	/**
+	 * @var string A shortcode
+	 */
+	protected $shortcode;
+
+	/**
 	 * @var int The FileID for this link.
 	 */
 	protected $file_id;
@@ -56,8 +61,9 @@ class NamedLinkField extends DBField implements CompositeDBField {
 		'PageAnchor' => 'Varchar',
 		'FileID' => 'Varchar',
 		'CustomURL' => 'Varchar(2000)',
+		'Shortcode' => 'Varchar(255)',
 		'Title' => 'Varchar(255)',
-		'Linkmode' => "Enum(array('Page','URL','File','Email','external','internal'))" // ext/int are legacy and will be removed
+		'Linkmode' => "Enum(array('Page','URL','File','Email','Shortcode','external','internal'))" // ext/int are legacy and will be removed
 	);
 	
 	public function __construct($name = null) {
@@ -86,13 +92,15 @@ class NamedLinkField extends DBField implements CompositeDBField {
 			$this->setPageID($value->getPageID(), $markChanged);
 			$this->setPageAnchor($value->getPageAnchor(), $markChanged);
 			$this->setCustomURL($value->getCustomURL(), $markChanged);
+			$this->setShortcode($value->getShortcode(), $markChanged);
 			$this->setFileID($value->getFileID(), $markChanged);
 			$this->setTitle($value->getTitle(), $markChanged);
 			$this->setLinkmode($value->getLinkmode(), $markChanged);
 		} elseif ( $record && 
 					( isset($record[$this->name . 'PageID']) 
 						|| isset($record[$this->name . 'CustomURL'])
-						|| isset($record[$this->name . 'Title']) 
+						|| isset($record[$this->name . 'Shortcode'])
+						|| isset($record[$this->name . 'Title'])
 						|| isset($record[$this->name . 'Linkmode']) ) 
 				) {
 			$this->setPageID(
@@ -105,6 +113,10 @@ class NamedLinkField extends DBField implements CompositeDBField {
 			);
 			$this->setCustomURL(
 				(isset($record[$this->name . 'CustomURL'])) ? $record[$this->name . 'CustomURL'] : null,
+				$markChanged
+			);
+			$this->setShortcode(
+				(isset($record[$this->name . 'Shortcode'])) ? $record[$this->name . 'Shortcode'] : null,
 				$markChanged
 			);
 			$this->setFileID(
@@ -129,6 +141,9 @@ class NamedLinkField extends DBField implements CompositeDBField {
 			}
 			if (array_key_exists('CustomURL', $value)) {
 				$this->setCustomURL($value['CustomURL'], $markChanged);
+			}
+			if (array_key_exists('Shortcode', $value)) {
+				$this->setCustomURL($value['Shortcode'], $markChanged);
 			}
 			if (array_key_exists('PageID', $value)) {
 				$this->setFileID($value['FileID'], $markChanged);
@@ -190,6 +205,13 @@ class NamedLinkField extends DBField implements CompositeDBField {
 		} else {
 			$manipulation['fields'][$this->name.'CustomURL'] =
 					DBField::create_field('Varchar', $this->getCustomURL())->nullValue();
+		}
+
+		if($this->getShortcode()) {
+			$manipulation['fields'][$this->name.'Shortcode'] = $this->prepValueForDB($this->getShortcode());
+		} else {
+			$manipulation['fields'][$this->name.'Shortcode'] =
+					DBField::create_field('Varchar', $this->getShortcode())->nullValue();
 		}
 
 		if($this->getFileID()) {
@@ -255,7 +277,8 @@ class NamedLinkField extends DBField implements CompositeDBField {
 	 * @return boolean
 	 */
 	public function exists(){
-		return ( $this->page_id > 0 || $this->file_id > 0 || $this->custom_url !== null && $this->title !== null );
+		return ( $this->page_id > 0 || $this->file_id > 0 || $this->custom_url !== null
+			|| $this->shortcode !== null && $this->title !== null );
 	}
 	
 	public function getPageID() {
@@ -292,6 +315,15 @@ class NamedLinkField extends DBField implements CompositeDBField {
 	public function setCustomURL($url, $markChanged = true) {
 		$this->isChanged = $markChanged;
 		$this->custom_url = $url;
+	}
+
+	public function getShortcode() {
+		return $this->shortcode;
+	}
+
+	public function setShortcode($code, $markChanged = true) {
+		$this->isChanged = $markChanged;
+		$this->shortcode = $code;
 	}
 
 	public function getTitle() {
@@ -344,6 +376,13 @@ class NamedLinkField extends DBField implements CompositeDBField {
 		return null;
 	}
 
+	public function ShortcodeOutput() {
+		if ($this->linkmode=='Shortcode' && $sc = $this->getShortcode()) {
+			return ShortcodeParser::get_active()->parse($sc);
+		}
+		return null;
+	}
+
 	public function getEmail() {
 		if ($this->linkmode=='Email' && filter_var($this->getCustomURL(), FILTER_VALIDATE_EMAIL)) {
 			return "mailto:".$this->getCustomURL();
@@ -362,6 +401,10 @@ class NamedLinkField extends DBField implements CompositeDBField {
 //				}
 				return Convert::raw2htmlatt($url);
 
+			case "Shortcode":
+				// Should probably be handled differently from template (<% if IsShortcode ...)
+				return '';
+
 			case "Page" :
 				$url = '';
 				if($page = $this->Page()) $url = $page->AbsoluteLink();
@@ -372,7 +415,7 @@ class NamedLinkField extends DBField implements CompositeDBField {
 				return Convert::raw2htmlatt($this->getEmail());
 
 			default : // File
-				if($file = $this->File()) $file->AbsoluteLink();
+				if($file = $this->File()) return $file->AbsoluteLink();
 
 		}
 
@@ -398,7 +441,8 @@ class NamedLinkField extends DBField implements CompositeDBField {
 			'URL' => $this->getURL(),
 			'Title' => $this->Title,
 			'Linkmode' => $this->linkmode,
-			'Absolute' => $this->Absolute()
+			'Absolute' => $this->Absolute(),
+			'ShortcodeOutput' => $this->ShortcodeOutput(),
 		));
 	}
 //	public function forTemplate() {

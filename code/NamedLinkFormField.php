@@ -33,6 +33,11 @@ class NamedLinkFormField extends FormField {
 	 * @var FormField
 	 */
 	protected $fieldCustomURL = null;
+	
+	/**
+	 * @var FormField
+	 */
+	protected $fieldShortcode = null;
 
 	/**
 	 * @var FormField
@@ -69,6 +74,7 @@ class NamedLinkFormField extends FormField {
 
 		// naming with underscores to prevent values from actually being saved somewhere
 		$this->fieldCustomURL = new TextField("{$name}[CustomURL]", '', '', 300, $form);
+		$this->fieldShortcode = new TextField("{$name}[Shortcode]", '', '', 300, $form);
 		$this->fieldPageID = new TreeDropdownField("{$name}[PageID]", '', 'SiteTree', 'ID', 'MenuTitle');
 		$this->fieldPageID->setForm($form);
 //		$this->fieldPageAnchor = new DropdownField("{$name}[PageAnchor]", 'Anchor:',array(), '', $form);
@@ -95,6 +101,7 @@ class NamedLinkFormField extends FormField {
 					'URL' => 'URL',
 					'File' => 'File',
 					'Email' => 'Email',
+					'Shortcode' => 'Shortcode',
 				), '', $form);
 		$this->fieldLinkmode->addExtraClass('LinkModePicker');
 		parent::__construct($name, $title, $value, $form);
@@ -105,6 +112,7 @@ class NamedLinkFormField extends FormField {
 		$this->fieldPageAnchor->setForm($form);
 		$this->fieldFileID->setForm($form);
 		$this->fieldCustomURL->setForm($form);
+		$this->fieldShortcode->setForm($form);
 		$this->fieldTitle->setForm($form);
 		$this->fieldLinkmode->setForm($form);
 		return parent::setForm($form);
@@ -115,6 +123,7 @@ class NamedLinkFormField extends FormField {
 		$this->fieldPageAnchor->setName("{$name}[PageAnchor]");
 		$this->fieldFileID->setName("{$name}[FileID]");
 		$this->fieldCustomURL->setName("{$name}[CustomURL]");
+		$this->fieldShortcode->setName("{$name}[Shortcode]");
 		$this->fieldTitle->setName("{$name}[Title]");
 		$this->fieldLinkmode->setName("{$name}[Linkmode]");
 		return parent::setName($name);
@@ -149,6 +158,10 @@ class NamedLinkFormField extends FormField {
 				$this->fieldCustomURL->SmallFieldHolder() . 
 				'<label class="right">(&uarr; Enter URL/E-mail)</label>' .
 			"</div>" .
+			"<div class=\"fieldgroupField LinkFormFieldShortcode\">" .
+				$this->fieldShortcode->SmallFieldHolder() .
+				'<label class="right">(&uarr; Enter Shortcode)</label>' .
+			"</div>" .
 		"</div>";
 	}
 
@@ -160,6 +173,7 @@ class NamedLinkFormField extends FormField {
 			$this->fieldPageAnchor->setValue($val['PageAnchor']);
 			$this->fieldFileID->setValue($val['FileID']);
 			$this->fieldCustomURL->setValue($val['CustomURL']);
+			$this->fieldShortcode->setValue($val['Shortcode']);
 			$this->fieldTitle->setValue($val['Title']);
 			$this->fieldLinkmode->setValue($val['Linkmode']);
 		} elseif($val instanceof NamedLinkField) {
@@ -167,6 +181,7 @@ class NamedLinkFormField extends FormField {
 			$this->fieldPageAnchor->setValue($val->getPageAnchor());
 			$this->fieldFileID->setValue($val->getFileID());
 			$this->fieldCustomURL->setValue($val->getCustomURL());
+			$this->fieldShortcode->setValue($val->getShortcode());
 			$this->fieldTitle->setValue($val->getTitle());
 			$this->fieldLinkmode->setValue($val->getLinkmode());
 		}
@@ -185,6 +200,7 @@ class NamedLinkFormField extends FormField {
 				"PageAnchor" => $this->fieldPageAnchor->Value(),
 				"FileID" => $this->fieldFileID->Value(),
 				"CustomURL" => $this->fieldCustomURL->Value(),
+				"Shortcode" => $this->fieldShortcode->Value(),
 				"Title" => $this->fieldTitle->Value(),
 				"Linkmode" => $this->fieldLinkmode->Value()
 			));
@@ -193,6 +209,7 @@ class NamedLinkFormField extends FormField {
 			$dataObject->$fieldName->setPageID($this->fieldPageID->Value()); 
 			$dataObject->$fieldName->setPageAnchor($this->fieldPageAnchor->Value());
 			$dataObject->$fieldName->setCustomURL($this->fieldCustomURL->Value());
+			$dataObject->$fieldName->setShortcode($this->fieldShortcode->Value());
 			$dataObject->$fieldName->setFileID($this->fieldFileID->Value());
 			$dataObject->$fieldName->setTitle($this->fieldTitle->Value());
 			$dataObject->$fieldName->setLinkmode($this->fieldLinkmode->Value());
@@ -217,6 +234,7 @@ class NamedLinkFormField extends FormField {
 			$this->fieldPageID = $this->fieldPageID->performReadonlyTransformation();
 			$this->fieldPageAnchor = $this->fieldPageAnchor->performReadonlyTransformation();
 			$this->fieldCustomURL = $this->fieldCustomURL->performReadonlyTransformation();
+			$this->fieldShortcode = $this->fieldShortcode->performReadonlyTransformation();
 			$this->fieldFileID = $this->fieldFileID->performReadonlyTransformation();
 			$this->fieldTitle = $this->fieldTitle->performReadonlyTransformation();
 			$this->fieldLinkmode = $this->fieldLinkmode->performReadonlyTransformation();

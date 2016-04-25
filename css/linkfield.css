@@ -7,6 +7,7 @@
 */
 .LinkFormField { max-width: 513px; }
 .fieldgroupField.LinkFormFieldCustomURL .fieldholder-small,
+.fieldgroupField.LinkFormFieldShortcode .fieldholder-small,
 .fieldgroupField.LinkFormFieldPageID .fieldholder-small,
 .fieldgroupField.LinkFormFieldFileID .fieldholder-small
 {

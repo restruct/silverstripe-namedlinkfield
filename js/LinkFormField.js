@@ -73,6 +73,9 @@ jQuery.entwine('ss', function($){
 		// Custom URL
 		$('.LinkFormFieldCustomURL',this).css('display', 
 			( (mode=="URL" || mode=="Email") ? 'inline' : 'none') );
+		// Shortcode
+		$('.LinkFormFieldShortcode',this).css('display',
+			( mode=="Shortcode" ? 'inline' : 'none') );
 		// Page (Internal URL)
 		$('.LinkFormFieldPageID',this).css('display',
 			( mode=="Page" ? 'inline' : 'none') );
