@@ -66,7 +66,8 @@ class NamedLinkFormField extends FormField {
 				// Similar to the regex found in HtmlEditorField.js / getAnchors method.
 				if (preg_match_all("/\s(name|id)=\"([^\"]+?)\"|\s(name|id)='([^']+?)'/im", $page->Content, $matches)) {
 //					var_dump(array_filter(array_merge($matches[2], $matches[4])));
-					return array_filter(array_merge($matches[2], $matches[4]));
+					$anchors = array_filter(array_merge($matches[2], $matches[4]));
+					return array_combine($anchors, $anchors);
 				}
 			}
 		};
