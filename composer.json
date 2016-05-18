@@ -13,12 +13,12 @@
     "require": {
 		"silverstripe/framework": "3.*",
         "silverstripe/cms": "3.*",
-        "sheadawson/silverstripe-dependentdropdownfield": "dev-master"
+        "sheadawson/silverstripe-dependentdropdownfield": "~1.0"
     },
 	"support": {
 		"issues": "https://github.com/micschk/silverstripe-namedlinkfield/issues?state=open"
 	},
-	"installer-name": {
-		"installer": "namedlinkfield"
+	"extra": {
+      "installer-name": "namedlinkfield"
 	}
 }
