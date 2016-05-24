@@ -393,6 +393,7 @@ class NamedLinkField extends DBField implements CompositeDBField {
 	public function getURL() {
 		switch($this->linkmode){
 
+			case "external": // legacy
 			case "URL" :
 				$url = $this->getCustomURL();
 				// add default http if no URL_SCHEME present (NO, relative urls should be possible)
@@ -405,6 +406,7 @@ class NamedLinkField extends DBField implements CompositeDBField {
 				// Should probably be handled differently from template (<% if IsShortcode ...)
 				return '';
 
+			case "internal": // legacy
 			case "Page" :
 				$url = '';
 				if($page = $this->Page()) $url = $page->AbsoluteLink();
