@@ -171,7 +171,9 @@ class NamedLinkFormField extends FormField {
 		$this->value = $val;
 		if(is_array($val)) {
 			$this->fieldPageID->setValue($val['PageID']);
-			$this->fieldPageAnchor->setValue($val['PageAnchor']);
+			if(isset($val['PageAnchor'])) {
+			    $this->fieldPageAnchor->setValue($val['PageAnchor']);
+			}
 			$this->fieldFileID->setValue($val['FileID']);
 			$this->fieldCustomURL->setValue($val['CustomURL']);
 			$this->fieldShortcode->setValue($val['Shortcode']);
