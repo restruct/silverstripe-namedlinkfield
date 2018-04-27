@@ -1,0 +1,33 @@
+.LinkFormField .fieldgroupField {
+  margin-bottom: 6px; }
+  .LinkFormField .fieldgroupField.LinkFormFieldTitle, .LinkFormField .fieldgroupField.LinkFormFieldLinkmode, .LinkFormField .fieldgroupField.LinkFormFieldPageAnchor {
+    display: inline-block;
+    width: 70%;
+    padding-left: 60px; }
+    .LinkFormField .fieldgroupField.LinkFormFieldTitle label, .LinkFormField .fieldgroupField.LinkFormFieldLinkmode label, .LinkFormField .fieldgroupField.LinkFormFieldPageAnchor label {
+      width: 50px;
+      margin-left: -60px;
+      margin-right: 6px;
+      padding-left: 8px;
+      display: inline-block; }
+    .LinkFormField .fieldgroupField.LinkFormFieldTitle input, .LinkFormField .fieldgroupField.LinkFormFieldLinkmode input, .LinkFormField .fieldgroupField.LinkFormFieldPageAnchor input {
+      display: inline-block; }
+  .LinkFormField .fieldgroupField.LinkFormFieldLinkmode {
+    width: 30%; }
+  .LinkFormField .fieldgroupField.LinkFormFieldPageID, .LinkFormField .fieldgroupField.LinkFormFieldPageAnchor {
+    width: 60%; }
+  .LinkFormField .fieldgroupField.LinkFormFieldPageAnchor {
+    width: 40%;
+    padding-left: 100px;
+    vertical-align: top; }
+    .LinkFormField .fieldgroupField.LinkFormFieldPageAnchor label {
+      width: 90px;
+      margin-right: 6px;
+      padding-left: 8px;
+      margin-left: -100px; }
+  .LinkFormField .fieldgroupField label.right {
+    padding-left: 4px;
+    font-size: .923rem;
+    color: #566b8d; }
+
+/*# sourceMappingURL=namedlinkfield.css.map */

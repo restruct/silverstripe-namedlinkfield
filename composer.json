@@ -1,24 +1,34 @@
 {
-    "name": "micschk/silverstripe-namedlinkfield",
-    "description": "A SilverStripe field type for having an internal or external link *with title*, in a single field with a nicely styled form. Based on the LinkField module by Simon Elvery & Left, Right Centre.",
-    "type": "silverstripe-module",
-    "keywords": ["silverstripe", "field"],
-	"homepage": "https://github.com/micschk/silverstripe-namedlinkfield/",
-    "authors": [
-        {
-            "name": "Restruct web & apps",
-			"email": "dev@restruct.nl"
-        }
-    ],
-    "require": {
-		"silverstripe/framework": "3.*",
-        "silverstripe/cms": "3.*",
-        "sheadawson/silverstripe-dependentdropdownfield": "~1.0"
-    },
-	"support": {
-		"issues": "https://github.com/micschk/silverstripe-namedlinkfield/issues?state=open"
-	},
-	"extra": {
-      "installer-name": "namedlinkfield"
-	}
+  "name": "restruct/silverstripe-namedlinkfield",
+  "description": "A SilverStripe composite field for having various link types *with title*, in a single field with a nicely styled form. Based on the LinkField module by Simon Elvery & Left, Right Centre.",
+  "type": "silverstripe-vendormodule",
+  "keywords": [
+    "silverstripe",
+    "field"
+  ],
+  "homepage": "https://github.com/restruct/silverstripe-namedlinkfield/",
+  "authors": [
+    {
+      "name": "Restruct web & apps",
+      "email": "dev@restruct.nl"
+    }
+  ],
+  "license": "BSD-3-Clause",
+  "require": {
+    "silverstripe/vendor-plugin": "^1.0",
+    "silverstripe/framework": "^4.0",
+    "sheadawson/silverstripe-dependentdropdownfield": "^2.0"
+  },
+  "autoload": {
+    "psr-4": {
+      "Restruct\\SilverStripe\\Forms\\": "src/",
+      "Restruct\\SilverStripe\\ORM\\FieldType\\": "src/"
+    }
+  },
+  "extra": {
+    "installer-name": "namedlinkfield",
+    "expose": [
+      "client"
+    ]
+  }
 }
