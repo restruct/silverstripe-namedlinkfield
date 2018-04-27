@@ -35,7 +35,7 @@ public function getCMSFields()
 ```
 
 ## Requirements
-* SilverStripe CMS 3.0 or greater
+* SilverStripe CMS 4.0 or greater
 * Dependentdropdownfield (for in-page text-anchor selection)
 
 ## Screenshots
