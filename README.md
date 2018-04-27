@@ -1,15 +1,37 @@
 # A link field (with title) for SilverStripe
 
 A single inline link field which allows users to set a title/name for the link, 
-and select a page + optional text-anchor from the site tree, a file from 
-the assets dir, an e-mail address (mailto link), or
-define a custom URL to link to.
+and select
+ - a page + optional text-anchor from the site tree
+ - a file from the assets dir
+ - an e-mail address (mailto link)
+ - define a custom URL to link to
+ - or enter a shortcode
 
 ## Usage
 ```php
+use Restruct\SilverStripe\ORM\FieldType\NamedLinkField;
+use Restruct\SilverStripe\Forms\NamedLinkFormField;
+
+...
+
 private static $db = array(
-    'NextAction' => 'NamedLinkField', // A NamedLinkFormField will be scaffolded
+    'NextAction' => 'NamedLinkField',
 );
+
+...
+
+public function getCMSFields()
+{
+    $fields = parent::getCMSFields();
+
+    $fields->insertBefore(
+        "Content",
+        NamedLinkFormField::create('ActionButton')
+    );
+
+    return $fields;
+}
 ```
 
 ## Requirements
@@ -18,9 +40,7 @@ private static $db = array(
 
 ## Screenshots
 
-![](docs/screen-page.png)
-![](docs/screen-file.png)
-![](docs/screen-email.png)
+![](docs/assets/namedlinkfield.png)
 
 Pick page & text-anchor, file, e-mail or (external) URL. Fields will be auto-updated.
 
