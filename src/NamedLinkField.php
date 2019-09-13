@@ -378,13 +378,14 @@ class NamedLinkField extends DBComposite
 //		$this->title = $title;
 //	}
 
-    public function getLinkType()
+    public function getLinkmode()
     {
-        // legacy LinkTypes
-        if ($this->LinkType == 'external') return 'URL';
-        if ($this->LinkType == 'internal') return 'Page';
+        // legacy Linkmodes
+        $linkmode = $this->getField('Linkmode');
+        if ($linkmode == 'external') return 'URL';
+        if ($linkmode == 'internal') return 'Page';
 
-        return $this->getField('LinkType');
+        return $linkmode;
     }
 
 //    public function setLinkType($ltype, $markChanged = true)
@@ -395,7 +396,8 @@ class NamedLinkField extends DBComposite
 
     public function Page()
     {
-        if ($this->getPageID() && $page = DataObject::get_by_id('Page', $this->getPageID())) {
+        $pageID = $this->getField('PageID');
+        if ($pageID && $page = DataObject::get_by_id('Page', $pageID)) {
             return $page;
         }
         return null;
@@ -403,7 +405,8 @@ class NamedLinkField extends DBComposite
 
     public function File()
     {
-        if ($this->getFileID() && $file = DataObject::get_by_id(File::class, $this->getFileID())) {
+        $fileID = $this->getField('FileID');
+        if ($fileID && $file = DataObject::get_by_id(File::class, $fileID)) {
             return $file;
         }
         return null;
@@ -411,7 +414,7 @@ class NamedLinkField extends DBComposite
 
     public function ShortcodeOutput()
     {
-        if ($this->LinkType == 'Shortcode' && $sc = $this->getShortcode()) {
+        if ($this->getField('Linkmode') == 'Shortcode' && $sc = $this->getField('Shortcode')) {
             return ShortcodeParser::get_active()->parse($sc);
         }
         return null;
@@ -419,44 +422,44 @@ class NamedLinkField extends DBComposite
 
     public function getEmail()
     {
-        if ($this->LinkType == Email::class && filter_var($this->getCustomURL(), FILTER_VALIDATE_EMAIL)) {
-            return "mailto:" . $this->getCustomURL();
+        if ($this->getField('Linkmode') == 'Email' && filter_var($this->getField('CustomURL'), FILTER_VALIDATE_EMAIL)) {
+            return "mailto:" . $this->getField('CustomURL');
         }
         return null;
     }
 
-//	public function getURL() {
-//		switch($this->LinkType){
-//
-//			case "external": // legacy
-//			case "URL" :
-//				$url = $this->getCustomURL();
-//				// add default http if no URL_SCHEME present (NO, relative urls should be possible)
-////				if( parse_url($url, PHP_URL_SCHEME) === null ){
-////					$url = 'http://' . $url;
-////				}
-//				return Convert::raw2htmlatt($url);
-//
-//			case "Shortcode":
-//				// Should probably be handled differently from template (<% if IsShortcode ...)
-//				return '';
-//
-//			case "internal": // legacy
-//			case "Page" :
-//				$url = '';
-//				if($page = $this->Page()) $url = $page->AbsoluteLink();
-//				if ($anchor = $this->getPageAnchor()){ $url .= "#$anchor"; }
-//				return Convert::raw2htmlatt($url);
-//
-//			case Email::class :
-//				return Convert::raw2htmlatt($this->getEmail());
-//
-//			default : // File
-//				if($file = $this->File()) return $file->AbsoluteLink();
-//
-//		}
-//
-//	}
+	public function getURL() {
+		switch($this->getField('Linkmode')){
+
+			case "external": // legacy
+			case "URL" :
+				$url = $this->getField('CustomURL');
+				// add default http if no URL_SCHEME present (NO, relative urls should be possible)
+//				if( parse_url($url, PHP_URL_SCHEME) === null ){
+//					$url = 'http://' . $url;
+//				}
+				return Convert::raw2htmlatt($url);
+
+			case "Shortcode":
+				// Should probably be handled differently from template (<% if IsShortcode ...)
+				return '';
+
+			case "internal": // legacy
+			case "Page" :
+				$url = '';
+				if($page = $this->Page()) $url = $page->AbsoluteLink();
+				if($anchor = $this->getField('PageAnchor')) $url .= "#$anchor";
+				return Convert::raw2htmlatt($url);
+
+			case 'Email' :
+				return Convert::raw2htmlatt($this->getEmail());
+
+			default : // File
+				if($file = $this->File()) return $file->AbsoluteLink();
+
+		}
+
+	}
 
 //	public function __toString() {
 //		return (string) $this->getURL();
