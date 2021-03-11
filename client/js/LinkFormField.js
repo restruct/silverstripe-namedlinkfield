@@ -1,22 +1,22 @@
 jQuery.entwine("dependentdropdown", function ($) {
 
-	// FIX: remove '[]' part from load-url for namedlinkfield-dependentdropdowns,
-	// as such URLs end up at form instead of the field
-	$(".LinkFormFieldPageAnchor :input.dependent-dropdown").entwine({
+    // FIX: remove '[]' part from load-url for namedlinkfield-dependentdropdowns,
+    // as such URLs end up at form instead of the field
+    $(".LinkFormFieldPageAnchor :input.dependent-dropdown").entwine({
 
-		onadd: function () {
-			// fix data-link
-			var loadurl = this.data('link').split('[')[0] + this.data('link').split(']')[1];
-			this.data('link',loadurl);
+        onadd: function () {
+            // fix data-link
+            var loadurl = this.data('link').split('[')[0] + this.data('link').split(']')[1];
+            this.data('link',loadurl);
 
-			// fix double empty value
-			this.find('option:first-child').remove();
+            // fix double empty value
+            this.find('option:first-child').remove();
 
-			// call less specific entwine functionality
-			this._super();
-		}
+            // call less specific entwine functionality
+            this._super();
+        }
 
-	});
+    });
 
 });
 
@@ -70,55 +70,55 @@ jQuery.entwine("dependentdropdown", function ($) {
 
 (function($){
 
-	function showLinkInput() {
-		var mode = $(this).find('.LinkFormFieldLinkmode select').val();
+    function showLinkInput() {
+        var mode = $(this).find('.LinkFormFieldLinkmode select').val();
 
-		// 0 or >0 = something set, "" = 'None/Custom'
+        // 0 or >0 = something set, "" = 'None/Custom'
 //		$('.LinkFormFieldCustomURL',this).css('display',
 //			( $('.LinkFormFieldPageID input',this).val()=="" ? 'block' : 'none') );
-		// Custom URL
-		$('.LinkFormFieldCustomURL',this).css('display',
-			( (mode=="URL" || mode=="Email") ? 'block' : 'none') );
-		// Shortcode
-		$('.LinkFormFieldShortcode',this).css('display',
-			( mode=="Shortcode" ? 'block' : 'none') );
-		// Page (Internal URL)
-		$('.LinkFormFieldPageID',this).css('display',
-			( mode=="Page" ? 'inline-block' : 'none') );
-		// Page Anchor
-		$('.LinkFormFieldPageAnchor',this).css('display',
-			( mode=="Page" ? 'inline-block' : 'none') );
-		// File
-		$('.LinkFormFieldFileID',this).css('display',
-			( mode=="File" ? 'block' : 'none') );
-	}
+        // Custom URL
+        $('.LinkFormFieldCustomURL',this).css('display',
+            ( (mode=="URL" || mode=="Email") ? 'block' : 'none') );
+        // Shortcode
+        $('.LinkFormFieldShortcode',this).css('display',
+            ( mode=="Shortcode" ? 'block' : 'none') );
+        // Page (Internal URL)
+        $('.LinkFormFieldPageID',this).css('display',
+            ( mode=="Page" ? 'inline-block' : 'none') );
+        // Page Anchor
+        $('.LinkFormFieldPageAnchor',this).css('display',
+            ( mode=="Page" ? 'inline-block' : 'none') );
+        // File
+        $('.LinkFormFieldFileID',this).css('display',
+            ( mode=="File" ? 'block' : 'none') );
+    }
 
-	$('.LinkFormField').entwine({
-		onadd: function(){
-			var $this = this;
+    $('.LinkFormField').entwine({
+        onadd: function(){
+            var $this = this;
 
-			// Add listener
-			$this.find('.LinkFormFieldLinkmode select').on('change', function(){
-				showLinkInput.call($this);
-			});
+            // Add listener
+            $this.find('.LinkFormFieldLinkmode select').on('change', function(){
+                showLinkInput.call($this);
+            });
 
-			// Initial setup
-			showLinkInput.call($this);
+            // Initial setup
+            showLinkInput.call($this);
 
-			// Fix treedropdown links to be routed via the namedlinkformfield url handlers
-			$this.find('.TreeDropdownField').each(function(){
-				var treedata = $(this).data('schema');
-				if(treedata.data.urlTree) {
-					treedata.data.urlTree = treedata.data.urlTree.replace('[PageID]', '');
+            // Fix treedropdown links to be routed via the namedlinkformfield url handlers
+            $this.find('.TreeDropdownField').each(function(){
+                var treedata = $(this).data('schema');
+                if(treedata.data.urlTree) {
+                    treedata.data.urlTree = treedata.data.urlTree.replace('[PageID]', '');
                     if($(this).hasClass('filetree')) {
                         treedata.data.urlTree = treedata.data.urlTree.replace('[FileID]', '');
-                        treedata.data.urlTree = treedata.data.urlTree.replace('/tree', '/treefile');
+                        //treedata.data.urlTree = treedata.data.urlTree.replace('/tree', '/treefile');
                     }
                     $(this).data('schema', treedata);
-				}
+                }
             });
-		}
-	});
+        }
+    });
 
 
 })(jQuery);

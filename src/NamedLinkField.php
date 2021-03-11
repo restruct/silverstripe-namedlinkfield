@@ -2,6 +2,7 @@
 
 namespace Restruct\SilverStripe\ORM\FieldType;
 
+use SilverStripe\Dev\Debug;
 use SilverStripe\ORM\FieldType\DBComposite;
 use SilverStripe\ORM\DB;
 use SilverStripe\ORM\FieldType\DBField;
@@ -406,6 +407,7 @@ class NamedLinkField extends DBComposite
     public function File()
     {
         $fileID = $this->getField('FileID');
+        Debug::show($fileID);
         if ($fileID && $file = DataObject::get_by_id(File::class, $fileID)) {
             return $file;
         }
