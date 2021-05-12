@@ -1,11 +1,7 @@
 {
   "name": "restruct/silverstripe-namedlinkfield",
-  "description": "A SilverStripe composite field for having various link types *with title*, in a single field with a nicely styled form. Based on the LinkField module by Simon Elvery & Left, Right Centre.",
+  "description": "A SilverStripe composite field for having various link types *with title*, in a single field with a nicely styled form.",
   "type": "silverstripe-vendormodule",
-  "keywords": [
-    "silverstripe",
-    "field"
-  ],
   "license": "BSD-3-Clause",
   "authors": [
     {
@@ -13,7 +9,6 @@
       "email": "dev@restruct.nl"
     }
   ],
-  "license": "BSD-3-Clause",
   "require": {
     "silverstripe/vendor-plugin": "^1.0",
     "silverstripe/framework": "^4.0",

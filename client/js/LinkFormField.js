@@ -5,68 +5,57 @@ jQuery.entwine("dependentdropdown", function ($) {
     $(".LinkFormFieldPageAnchor :input.dependent-dropdown").entwine({
 
         onadd: function () {
+            var loadurl = this.data('link');
             // fix data-link
-            var loadurl = this.data('link').split('[')[0] + this.data('link').split(']')[1];
+            loadurl = loadurl.split('[')[0] + loadurl.split(']')[1];
             this.data('link',loadurl);
 
-            // fix double empty value
-            this.find('option:first-child').remove();
+            // fix double empty value --> ? Some SS3 stuff probably
+//            this.find('option:first-child').remove();
 
-            // call less specific entwine functionality
-            this._super();
+            //
+            // Because of this react crap we cannot listen for native DOM events anymore... workaround...
+            // Copied & adapted ONADD from dependentdropdownfield.js in order to make things work with the react rendered input of
+			var drop = this;
+			var depends = $(":input[name=" + drop.data('depends').replace(/[#;&,.+*~':"!^$[\]()=>|\/]/g, "\\$&") + "]");
+			this.parents('.field:first').addClass('dropdown');
+//			depends.change(function () {
+			depends.parent().on('change', function (event) {
+//				if (!this.value) {
+				if (!event.target.value) {
+					drop.disable(drop.data('unselected'));
+				} else {
+					drop.disable("Loading...");
+					$.get(drop.data('link'), {
+//						val: this.value
+						val: event.target.value
+					},
+					function (data) {
+						drop.enable();
+						if (drop.data('empty') || drop.data('empty') === "") {
+							drop.append($("<option />").val("").text(drop.data('empty')));
+						}
+						$.each(data, function () {
+							drop.append($("<option />").val(this.k).text(this.v));
+						});
+						drop.trigger("liszt:updated").trigger("chosen:updated").trigger("change");
+					});
+				}
+			});
+			if (!depends.val()) {
+				drop.disable(drop.data('unselected'));
+			}
+			//
+			// End of workaround
+			//
+
+            // call less specific entwine functionality --> dont call this anymore because we've replaced it with the updated onadd above...
+//            this._super();
         }
 
     });
 
 });
-
-
-// jQuery.entwine('ss', function($){
-//
-// 	$('.LinkFormField .TreeDropdownField.filetree').entwine({
-//
-// 		// Fix TreeDropdown to allow multiple different data-urls (Page & File)
-//
-// 		loadTree: function(params, callback) {
-// 			// // TreeDropdown seems quite stubborn to change the data-url to /tree over and over.
-// 			// // So we change it back over and over...
-// 			// this.data('urlTree',this.attr('data-url-tree'));
-//             //
-// 			// this._super(params, callback);
-// 		},
-//
-// 		// onadd: function() {
-// 		// 	// fix data url for treedropdown on File besides Page (.filetree)
-//          //    let treedata = this.data('schema');
-//          //    console.log(treedata);
-//          //    if(treedata.data.urlTree) {
-//          //        treedata.data.urlTree = treedata.data.urlTree.replace('[FileID]', '').replace('/tree', '/treefile');
-//          //        console.log(treedata.data.urlTree);
-//          //        this.data('schema', treedata);
-//          //    }
-// 		// 	// var datalink = this.attr('data-url-tree');
-// 		// 	// // because we keep resetting in loadTree, we need to remove the LAST '[x]' part manually
-// 		// 	// var datalink = datalink.split('[');
-// 		// 	// // remove & capture last part
-// 		// 	// var datalink_lastpart = datalink.pop();
-// 		// 	// // remove first val of last part
-// 		// 	// datalink_lastpart = datalink_lastpart.split(']');
-// 		// 	// datalink_lastpart.shift();
-// 		// 	// // and rebuild
-// 		// 	// newdatalink = datalink.join('[') + datalink_lastpart.join(']');
-// 		// 	// //if(this.hasClass('filetree')) {
-// 		// 	// 	this.attr('data-url-tree', newdatalink + 'file'); // 'treefile' is routed differently from Named LF PHP
-// 		// 	// //} else {
-// 		// 	// //	this.attr('data-url-tree', datalink);
-// 		// 	// //}
-//         //
-// 		// 	this._super();
-// 		// }
-//
-// 	});
-//
-// });
-
 
 (function($){
 
