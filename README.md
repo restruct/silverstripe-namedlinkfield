@@ -1,6 +1,6 @@
 # A link field (with title) for SilverStripe
 
-A single inline link field which allows users to set a title/name for the link, 
+A single inline link field which allows users to set a title/name for the link,
 and select
  - a page + optional text-anchor from the site tree
  - a file from the assets dir
@@ -33,6 +33,20 @@ public function getCMSFields()
     return $fields;
 }
 ```
+
+#Fix
+Use Text fields instead of Varchars (workaround 'Row Size too large' MySQL error)
+Restruct\SilverStripe\ORM\FieldType\NamedLinkField:
+composite_db:
+```yml
+'PageID': 'Text'
+'PageAnchor': 'Text'
+'FileID': 'Text'
+'CustomURL': 'Text'
+'Shortcode': 'Text'
+'Title': 'Text'
+```
+
 
 ## Requirements
 * SilverStripe CMS 4.0 or greater
