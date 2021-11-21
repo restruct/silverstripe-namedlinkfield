@@ -76,9 +76,9 @@ class NamedLinkField extends DBComposite
      */
     private static $composite_db = [
         //'PageID' => 'Int',
-        'PageID'     => 'Text', // seems only way to prevent "Column 'LinkPageID' cannot be null" error
+        'PageID'     => 'Int(0)',
         'PageAnchor' => 'Text',
-        'FileID'     => 'Text',
+        'FileID'     => 'Int(0)',
         'CustomURL'  => 'Text',
         'Shortcode'  => 'Text',
         'Title'      => 'Text',
