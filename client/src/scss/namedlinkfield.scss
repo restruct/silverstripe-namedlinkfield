@@ -1,0 +1,118 @@
+.namedlinkform {
+
+  .namedlink-row:first-child {
+    margin-bottom: 6px;
+  }
+
+  .fieldgroupField {
+    margin-left: -2px;
+    vertical-align: top;
+
+    //&:first-child, &:nth-child(2) {
+    //    margin-bottom: 6px;
+    //}
+
+    &.LinkFormFieldTitle, &.LinkFormFieldLinkmode, &.LinkFormFieldPageAnchor {
+      display: inline-block;
+      width: 70%;
+      padding-left: 60px;
+
+      label {
+        width: 50px;
+        margin-left: -60px;
+        margin-right: 6px;
+        padding-left: 8px;
+        display: inline-block;
+      }
+
+      input {
+        display: inline-block;
+      }
+    }
+
+    &.LinkFormFieldLinkmode {
+      width: 30%;
+      //.chosen-container {
+      //  margin-left: 5px;
+      //}
+    }
+
+    &.LinkFormFieldPageID, &.LinkFormFieldPageAnchor {
+      width: 60%;
+      //display: inline-block !important;
+    }
+
+    &.LinkFormFieldPageAnchor {
+      width: 40%;
+      padding-left: 100px;
+      vertical-align: top;
+
+      label {
+        width: 90px;
+        margin-right: 6px;
+        padding-left: 8px;
+        margin-left: -100px;
+      }
+    }
+
+    label.right {
+      padding-left: 4px;
+      font-size: .923rem;
+      color: #566b8d;
+      margin: 0;
+    }
+  }
+}
+
+.element-editor-editform {
+  .namedlinkform {
+    .namedlink-row {
+      margin-right: -8px;
+      //margin-left: -4px;
+    }
+
+    .field select {
+      display: inline-block;
+    }
+
+    .form-group {
+      margin-bottom: 0;
+    }
+  }
+
+  .fieldgroupField {
+    display: inline-block;
+    margin-left: 0;
+
+    // if contains single field, make full width
+    &:first-child:last-child {
+      width: 100%;
+    }
+
+    &.LinkFormFieldTitle, &.LinkFormFieldLinkmode {
+      label {
+        position: absolute !important;
+        width: auto !important;
+        margin-left: -56px !important;
+      }
+    }
+
+    &.LinkFormFieldLinkmode {
+      padding-right: 8px;
+
+      label {
+        margin-left: -46px !important;
+      }
+    }
+
+    // couldn't get the last textanchor label to display nicely -- hiding altogether for lack of time to fix this...
+    &.LinkFormFieldPageAnchor {
+      padding-left: 10px;
+    }
+  }
+
+  // couldn't get the last textanchor label to display nicely -- hiding altogether for lack of time to fix this...
+  .form__field-holder .LinkFormFieldPageAnchor .form-group label.form__field-label {
+    display: none;
+  }
+}

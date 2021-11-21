@@ -1,0 +1,13 @@
+---
+Name: namedlinkfield
+---
+SilverStripe\Admin\LeftAndMain:
+  extra_requirements_javascript:
+    - 'restruct/silverstripe-namedlinkfield:client/dist/js/bundle.js'
+  extra_requirements_css:
+    - 'restruct/silverstripe-namedlinkfield:client/dist/css/namedlinkfield.css'
+
+SilverStripe\Control\Director:
+  rules:
+    # Couldn't figure out the graphql stuff so going the old school way for now
+    'admin/namedlinkpageanchors': 'Restruct\SilverStripe\NamedLinkField\NamedLinkCtrl'
