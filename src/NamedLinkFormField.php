@@ -49,37 +49,37 @@ class NamedLinkFormField
     // name of the react component
     protected $schemaComponent = 'NamedLinkFormField';
 
-    /**
-     * Gets the defaults for $schemaState.
-     * The keys defined here are immutable, meaning undefined keys passed to {@link setSchemaState()} are ignored.
-     * Instead the `data` array should be used to pass around ad hoc data.
-     * Includes validation data if the field is associated to a {@link Form},
-     * and {@link Form->validate()} has been called.
-     *
-     * @return array $state = [
-    'name' => $this->getName(),
-    'id' => $this->ID(),
-    'value' => $this->Value(),
-    'message' => $this->getSchemaMessage(),
-    'data' => [],
-    ];
-     */
-    public function getSchemaStateDefaults()
-    {
-        $state = parent::getSchemaStateDefaults();
-
-//        $state['fieldTitle'] = $this->fieldTitle->getSchemaState();
-//        $state['fieldLinkmode'] = $this->fieldLinkmode->getSchemaState();
-//        $state['fieldCustomURL'] = $this->fieldCustomURL->getSchemaState();
-//        $state['fieldShortcode'] = $this->fieldShortcode->getSchemaState();
-//        $state['fieldPageID'] = $this->fieldPageID->getSchemaState();
-//        $state['fieldPageAnchor'] = $this->fieldPageAnchor->getSchemaState();
-//        $state['fieldFileID'] = $this->fieldFileID->getSchemaState();
-
-//        $state['fieldHTML'] = $this->Field()->Value;
-
-        return $state;
-    }
+//    /**
+//     * Gets the defaults for $schemaState.
+//     * The keys defined here are immutable, meaning undefined keys passed to {@link setSchemaState()} are ignored.
+//     * Instead the `data` array should be used to pass around ad hoc data.
+//     * Includes validation data if the field is associated to a {@link Form},
+//     * and {@link Form->validate()} has been called.
+//     *
+//     * @return array $state = [
+//    'name' => $this->getName(),
+//    'id' => $this->ID(),
+//    'value' => $this->Value(),
+//    'message' => $this->getSchemaMessage(),
+//    'data' => [],
+//    ];
+//     */
+//    public function getSchemaStateDefaults()
+//    {
+//        $state = parent::getSchemaStateDefaults();
+//
+////        $state['fieldTitle'] = $this->fieldTitle->getSchemaState();
+////        $state['fieldLinkmode'] = $this->fieldLinkmode->getSchemaState();
+////        $state['fieldCustomURL'] = $this->fieldCustomURL->getSchemaState();
+////        $state['fieldShortcode'] = $this->fieldShortcode->getSchemaState();
+////        $state['fieldPageID'] = $this->fieldPageID->getSchemaState();
+////        $state['fieldPageAnchor'] = $this->fieldPageAnchor->getSchemaState();
+////        $state['fieldFileID'] = $this->fieldFileID->getSchemaState();
+//
+////        $state['fieldHTML'] = $this->Field()->Value;
+//
+//        return $state;
+//    }
 
     //////
 
