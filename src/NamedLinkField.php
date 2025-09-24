@@ -117,8 +117,8 @@ class NamedLinkField extends DBComposite
      */
     public function exists()
     {
-        return ( $this->page_id > 0 || $this->file_id > 0 || $this->custom_url !== null
-            || ( $this->shortcode !== null && $this->title !== null ) );
+        return ( $this->getField('PageID') > 0 || $this->getField('FileID') > 0 || $this->getField('CustomURL') !== null
+            || ( $this->getField('Shortcode') !== null && $this->getField('Title') !== null ) );
     }
 
     public function getLinkmode()
