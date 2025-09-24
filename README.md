@@ -8,6 +8,8 @@ and select
  - define a custom URL to link to
  - or enter a shortcode
 
+<img width="1069" height="114" alt="namedlinkfield" src="https://github.com/user-attachments/assets/4ee67dd7-9e0d-40d9-b2b0-bfb508275db2" />
+
 ## Usage
 ```php
 use Restruct\SilverStripe\ORM\FieldType\NamedLinkField;
@@ -16,7 +18,7 @@ use Restruct\SilverStripe\Forms\NamedLinkFormField;
 ...
 
 private static $db = array(
-    'NextAction' => 'NamedLinkField',
+    'NextAction' => NamedLinkField::class,
 );
 
 ...
@@ -33,30 +35,6 @@ public function getCMSFields()
     return $fields;
 }
 ```
-
-#Fix
-Use Text fields instead of Varchars (workaround 'Row Size too large' MySQL error)
-Restruct\SilverStripe\ORM\FieldType\NamedLinkField:
-composite_db:
-```yml
-'PageID': 'Text'
-'PageAnchor': 'Text'
-'FileID': 'Text'
-'CustomURL': 'Text'
-'Shortcode': 'Text'
-'Title': 'Text'
-```
-
-
-## Requirements
-* SilverStripe CMS 4.0 or greater
-* Dependentdropdownfield (for in-page text-anchor selection)
-
-## Screenshots
-
-![](docs/assets/namedlinkfield.png)
-
-Pick page & text-anchor, file, e-mail or (external) URL. Fields will be auto-updated.
 
 ## TODO
 * Check source-class-HtmlEditorField_Toolbar.html#_LinkForm for inline uploading of files etc
