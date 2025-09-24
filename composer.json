@@ -10,9 +10,10 @@
     }
   ],
   "require": {
-    "silverstripe/vendor-plugin": "^1.0",
-    "silverstripe/framework": "^4.0",
-    "sheadawson/silverstripe-dependentdropdownfield": "^2.0"
+    "php": ">=7.4",
+    "silverstripe/vendor-plugin": ">=1",
+    "silverstripe/framework": "^4 || ^5",
+    "sheadawson/silverstripe-dependentdropdownfield": "^3"
   },
   "autoload": {
     "psr-4": {
