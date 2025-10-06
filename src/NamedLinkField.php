@@ -2,20 +2,15 @@
 
 namespace Restruct\SilverStripe\ORM\FieldType;
 
-use SilverStripe\Dev\Debug;
+use Override;
+use SilverStripe\Forms\FormField;
+use SilverStripe\Model\ModelData;
 use SilverStripe\ORM\FieldType\DBComposite;
-use SilverStripe\ORM\DB;
-use SilverStripe\ORM\FieldType\DBField;
-use SilverStripe\ORM\FieldType\DBEnum;
 use Restruct\SilverStripe\Forms\NamedLinkFormField;
 use SilverStripe\ORM\DataObject;
 use SilverStripe\Assets\File;
 use SilverStripe\View\Parsers\ShortcodeParser;
-use SilverStripe\Control\Email\Email;
 use SilverStripe\Core\Convert;
-use SilverStripe\Control\Director;
-use SilverStripe\Control\Controller;
-use SilverStripe\ORM\ArrayList;
 
 
 /**
@@ -63,7 +58,7 @@ class NamedLinkField extends DBComposite
     /**
      * @var boolean Is this record changed or not?
      */
-    protected $isChanged = false;
+    protected bool $isChanged = false;
 
 
     /**
@@ -95,14 +90,16 @@ class NamedLinkField extends DBComposite
      *
      * @return NamedLinkFormField
      */
-    public function scaffoldFormField($title = null, $params = null)
+    #[Override]
+    public function scaffoldFormField(?string $title = null, array $params = []): ?FormField
     {
         return NamedLinkFormField::create($this->name);
     }
 
-    public function saveInto($dataObject)
+    #[Override]
+    public function saveInto(ModelData $dataObject): void
     {
-        foreach ( $this->compositeDatabaseFields() as $field => $spec ) {
+        foreach ( array_keys($this->compositeDatabaseFields()) as $field ) {
             // Save into record
             $key = $this->getName() . $field;
             $dataObject->setField($key, $this->getField($field));
@@ -112,21 +109,36 @@ class NamedLinkField extends DBComposite
     /**
      * Determines if any of the properties in this field have a value,
      * meaning at least one of them is not NULL.
-     *
-     * @return boolean
      */
-    public function exists()
+    #[Override]
+    public function exists(): bool
     {
-        return ( $this->getField('PageID') > 0 || $this->getField('FileID') > 0 || $this->getField('CustomURL') !== null
-            || ( $this->getField('Shortcode') !== null && $this->getField('Title') !== null ) );
+        if ($this->getField('PageID') > 0) {
+            return true;
+        }
+
+        if ($this->getField('FileID') > 0) {
+            return true;
+        }
+
+        if ($this->getField('CustomURL') !== null) {
+            return true;
+        }
+
+        return $this->getField('Shortcode') !== null && $this->getField('Title') !== null;
     }
 
     public function getLinkmode()
     {
         // legacy Linkmodes
         $linkmode = $this->getField('Linkmode');
-        if ( $linkmode === 'external' ) return 'URL';
-        if ( $linkmode === 'internal' ) return 'Page';
+        if ($linkmode === 'external') {
+            return 'URL';
+        }
+
+        if ($linkmode === 'internal') {
+            return 'Page';
+        }
 
         return $linkmode;
     }
@@ -187,8 +199,13 @@ class NamedLinkField extends DBComposite
             case "internal": // legacy
             case "Page" :
                 $url = '';
-                if ( $page = $this->Page() ) $url = $page->AbsoluteLink();
-                if ( $anchor = $this->getField('PageAnchor') ) $url .= "#$anchor";
+                if ($page = $this->Page()) {
+                    $url = $page->AbsoluteLink();
+                }
+
+                if ($anchor = $this->getField('PageAnchor')) {
+                    $url .= '#' . $anchor;
+                }
 
                 return Convert::raw2htmlatt($url);
 
@@ -196,9 +213,13 @@ class NamedLinkField extends DBComposite
                 return Convert::raw2htmlatt($this->getEmail());
 
             default : // File
-                if ( $file = $this->File() ) return $file->AbsoluteLink();
+                if ($file = $this->File()) {
+                    return $file->AbsoluteLink();
+                }
 
         }
+
+        return null;
 
     }
 }

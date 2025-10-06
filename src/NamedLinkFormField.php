@@ -2,32 +2,24 @@
 
 namespace Restruct\SilverStripe\Forms;
 
+use Override;
 use Restruct\SilverStripe\NamedLinkField\NamedLinkCtrl;
-use SilverStripe\Forms\CompositeField;
+use Sheadawson\DependentDropdown\Forms\DependentDropdownField;
 use SilverStripe\Forms\FieldGroup;
 use SilverStripe\Forms\TextField;
 use SilverStripe\CMS\Model\SiteTree;
 use SilverStripe\Forms\TreeDropdownField;
-use Sheadawson\DependentDropdown\Forms\DependentDropdownField;
 use SilverStripe\Assets\File;
-use SilverStripe\Control\Email\Email;
 use SilverStripe\Forms\DropdownField;
-use SilverStripe\ORM\FieldType\DBHTMLText;
-use SilverStripe\View\Requirements;
 use Restruct\SilverStripe\ORM\FieldType\NamedLinkField;
-use SilverStripe\ORM\DataObjectInterface;
-use SilverStripe\ORM\FieldType\DBField;
-use SilverStripe\Forms\ReadonlyField;
 use SilverStripe\Forms\FormField;
-use Page;
 
 /**
  * Description of LinkFormField
  *
  * @TODO: make extend from CompositeField instead of FormField (as thats what this field actually is...)
  */
-class NamedLinkFormField
-    extends FieldGroup
+class NamedLinkFormField extends FieldGroup
 {
 //    private static $url_handlers = [
 //        '$Action!/$ID' => '$Action',
@@ -44,6 +36,7 @@ class NamedLinkFormField
 
     // custom since we don't have one specific data type
     protected $schemaDataType = FormField::SCHEMA_DATA_TYPE_CUSTOM;
+
 //    protected $schemaDataType = FormField::SCHEMA_DATA_TYPE_HTML;
 
     // name of the react component
@@ -83,36 +76,36 @@ class NamedLinkFormField
 
     //////
 
-    public function __construct($name, $title = null, $value = null)
+    public function __construct($name, $title = null)
     {
         // create a reference to NamedLinkField
         $this->namedLinkCompositeField = NamedLinkField::create($name);
 
         // naming with underscores to prevent values from actually being saved somewhere
-        $this->fieldCustomURL = new TextField("{$name}CustomURL", '', '', 300);
-        $this->fieldShortcode = new TextField("{$name}Shortcode", '', '', 300);
+        $this->fieldCustomURL = new TextField($name . 'CustomURL', '', '', 300);
+        $this->fieldShortcode = new TextField($name . 'Shortcode', '', '', 300);
 
-        $this->fieldPageID = new TreeDropdownField("{$name}PageID", '', SiteTree::class, 'ID', 'MenuTitle');
+        $this->fieldPageID = new TreeDropdownField($name . 'PageID', '', SiteTree::class, 'ID', 'MenuTitle');
         $this->fieldPageID->setHasEmptyDefault(true);
 
         // The DependentDropdownField, setting the source as the callable function
         // and setting the field it depends on to the appropriate field
         $this->fieldPageAnchor = DependentDropdownField::create(
-            "{$name}PageAnchor",
+            $name . 'PageAnchor',
             'Text-anchor:',
 //            $getanchors
-            function ($page_id) { return NamedLinkCtrl::get_page_anchors($page_id); }
+            fn($page_id) => NamedLinkCtrl::get_page_anchors($page_id)
         )
             ->setEmptyString('Page anchor: (none)')
             ->setDepends($this->fieldPageID)
         ;
 
-        $this->fieldFileID = new TreeDropdownField("{$name}FileID", '', File::class, 'ID', 'Title');
+        $this->fieldFileID = new TreeDropdownField($name . 'FileID', '', File::class, 'ID', 'Title');
         $this->fieldFileID->setTitleField('Filename'); // Name = file.jpg / Filename = path/to/file.jpg
         $this->fieldFileID->addExtraClass('filetree');
 
-        $this->fieldTitle = new TextField("{$name}Title", 'Title: ', '', 300);
-        $this->fieldLinkmode = DropdownField::create("{$name}Linkmode", 'Type: ',
+        $this->fieldTitle = new TextField($name . 'Title', 'Title: ', '', 300);
+        $this->fieldLinkmode = DropdownField::create($name . 'Linkmode', 'Type: ',
             [
                 'Page'      => 'Page',
                 'URL'       => 'URL',
@@ -142,20 +135,23 @@ class NamedLinkFormField
     /**
      * @return string
      */
+    #[Override]
     public function Field($properties = [])
     {
         return $this->renderWith('NamedLinkFormField');
     }
 
+    #[Override]
     public function FieldHolder($properties = [])
     {
         // Admin (CMS-theme) formfield templates are here:
         // vendor/silverstripe/admin/themes/cms-forms/templates/SilverStripe/Forms/FormField_holder.ss
         $context = $this;
         $this->extend('onBeforeRenderHolder', $context, $properties);
-        if (count($properties)) {
+        if (count($properties) > 0) {
             $context = $this->customise($properties);
         }
+
         return $context->renderWith(FormField::class.'_holder');
     }
 
