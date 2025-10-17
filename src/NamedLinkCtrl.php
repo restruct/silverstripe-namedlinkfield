@@ -32,7 +32,7 @@ class NamedLinkCtrl
     // updated value as the first parameter ($val)
     public static function get_page_anchors ($page_id) {
         // Copied from HtmlEditorField_Toolbar::getanchors()
-        if ( ( $page = Page::get()->byID($page_id) ) && !empty($page) ) {
+        if ( ( $page = Page::get()->byID($page_id) ) && !empty($page) && !empty($page->Content) ) {
             if ( preg_match_all("/\s(name|id)=\"([^\"]+?)\"|\s(name|id)='([^']+?)'/im", $page->Content, $matches) ) {
                 $anchors = array_filter(array_merge($matches[ 2 ], $matches[ 4 ]));
 
