@@ -1,0 +1,143 @@
+name: CI
+
+on:
+  push:
+    branches: [v2]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  test:
+    name: SS${{ matrix.silverstripe }} / PHP ${{ matrix.php }}
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          # This is the maintenance line. composer.json still allows Silverstripe 4,
+          # but 4 reached end of life in April 2025 and is deliberately NOT tested:
+          # this branch exists to keep Silverstripe 5 secure and bug-free until its
+          # own end of life in April 2027.
+          - silverstripe: '5'
+            php: '8.1'
+            recipe: '^5'
+            testing: '^3'
+          - silverstripe: '5'
+            php: '8.3'
+            recipe: '^5'
+            testing: '^3'
+
+    services:
+      database:
+        # MariaDB rather than MySQL: it matches both the local dev machine and the
+        # Forge servers, so a version-specific failure here means something real.
+        image: mariadb:11.4
+        env:
+          MARIADB_ROOT_PASSWORD: root
+          MARIADB_DATABASE: ss_ci
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="healthcheck.sh --connect --innodb_initialized"
+          --health-interval=10s --health-timeout=5s --health-retries=10
+
+    steps:
+      - name: Check out the module
+        uses: actions/checkout@v4
+        with:
+          path: module
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          extensions: mbstring, intl, pdo_mysql, mysqli, gd, zip, dom, xml, tokenizer, simplexml, ctype, hash, session
+          tools: composer:v2
+          coverage: none
+
+      - name: Build a host project
+        # The module cannot be tested on its own: it needs a booted Silverstripe app.
+        # The module is required through a PATH repository pointing at the checkout, and
+        # symlinked rather than mirrored ON PURPOSE - `/tests` is `export-ignore` in
+        # .gitattributes, so a dist or mirrored install contains no tests at all.
+        run: |
+          mkdir -p app-host
+          cd app-host
+          cat > composer.json <<JSON
+          {
+            "name": "restruct/ci-host",
+            "require": {
+              "silverstripe/recipe-cms": "${{ matrix.recipe }}",
+              "silverstripe/recipe-testing": "${{ matrix.testing }}",
+              "restruct/silverstripe-namedlinkfield": "*"
+            },
+            "repositories": [
+              { "type": "path", "url": "../module", "options": { "symlink": true } }
+            ],
+            "autoload-dev": {
+              "psr-4": {
+                "Restruct\\\\NamedLink\\\\Tests\\\\": "vendor/restruct/silverstripe-namedlinkfield/tests/"
+              }
+            },
+            "minimum-stability": "dev",
+            "prefer-stable": true,
+            "config": { "allow-plugins": true }
+          }
+          JSON
+          # Every Silverstripe 5 release is covered by advisory PKSA-pjvm-vnw2-n3m2
+          # (range <6.2.1), which will not be patched on the 5 line, so Composer
+          # refuses to install it under the default policy. Disabled HERE ONLY, in a
+          # throwaway CI host project.
+          composer config policy.advisories.block false
+          composer update --no-interaction --no-progress
+
+      - name: Configure the test suite
+        run: |
+          cd app-host
+          cat > phpunit.xml <<'XML'
+          <?xml version="1.0" encoding="UTF-8"?>
+          <!-- Warning-to-error escalation is the RUNNER's behaviour and differs by PHPUnit
+               major: 9 (SS5) converts warnings by default, 11 (SS6) has no such attribute.
+               Both are pinned here so a warning behaves identically on every leg. -->
+          <phpunit bootstrap="vendor/silverstripe/framework/tests/bootstrap.php" colors="true"
+                   failOnWarning="true">
+              <testsuites>
+                  <testsuite name="namedlinkfield">
+                      <directory>vendor/restruct/silverstripe-namedlinkfield/tests</directory>
+                  </testsuite>
+              </testsuites>
+          </phpunit>
+          XML
+
+      - name: Run tests
+        working-directory: app-host
+        env:
+          SS_DATABASE_CLASS: MySQLDatabase
+          SS_DATABASE_SERVER: 127.0.0.1
+          SS_DATABASE_PORT: 3306
+          SS_DATABASE_USERNAME: root
+          SS_DATABASE_PASSWORD: root
+          SS_DATABASE_NAME: ss_ci
+          SS_ENVIRONMENT_TYPE: dev
+          # PHPUnit 11 (SS6) ignores a `flush=1` argument, so the manifest is flushed
+          # through this instead. Harmless on PHPUnit 9.
+          SS_PHPUNIT_FLUSH: 1
+        run: vendor/bin/phpunit --testsuite namedlinkfield
+
+  lint:
+    name: Lint PHP ${{ matrix.php }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        # The floor and the ceiling of the module's declared php constraint.
+        php: ['8.1', '8.3']
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          coverage: none
+      - name: Syntax check every PHP file
+        run: find src tests -name '*.php' -print0 | xargs -0 -n1 php -l
