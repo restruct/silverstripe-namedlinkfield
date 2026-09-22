@@ -89,7 +89,11 @@ jobs:
           cd app-host
           cat > phpunit.xml <<'XML'
           <?xml version="1.0" encoding="UTF-8"?>
-          <phpunit bootstrap="vendor/silverstripe/framework/tests/bootstrap.php" colors="true">
+          <!-- Warning-to-error escalation is the RUNNER's behaviour and differs by PHPUnit
+               major: 9 (SS5) converts warnings by default, 11 (SS6) has no such attribute.
+               Both are pinned here so a warning behaves identically on every leg. -->
+          <phpunit bootstrap="vendor/silverstripe/framework/tests/bootstrap.php" colors="true"
+                   failOnWarning="true">
               <testsuites>
                   <testsuite name="namedlinkfield">
                       <directory>vendor/restruct/silverstripe-namedlinkfield/tests</directory>
