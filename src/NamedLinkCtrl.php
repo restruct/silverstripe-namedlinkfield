@@ -31,8 +31,16 @@ class NamedLinkCtrl extends Controller
     // updated value as the first parameter ($val)
     public static function get_page_anchors ($page_id) {
         // Copied from HtmlEditorField_Toolbar::getanchors()
-        if ($page = Page::get()->byID($page_id) && !empty($page) && !empty($page->Content) && preg_match_all("/\s(name|id)=\"([^\"]+?)\"|\s(name|id)='([^']+?)'/im", (string) $page->Content, $matches)) {
+        // The assignment MUST stay parenthesised. `$page = expr && ...` binds as
+        // `$page = (expr && ...)` because `=` has lower precedence than `&&`, which both
+        // assigns a boolean to $page and evaluates !empty($page) against the previous
+        // (unset) value - so the condition was never true and this always returned [].
+        $page = Page::get()->byID($page_id);
+        if (!empty($page) && !empty($page->Content)
+            && preg_match_all("/\s(name|id)=\"([^\"]+?)\"|\s(name|id)='([^']+?)'/im", (string) $page->Content, $matches)
+        ) {
             $anchors = array_filter(array_merge($matches[ 2 ], $matches[ 4 ]));
+
             return array_combine($anchors, $anchors);
         }
 

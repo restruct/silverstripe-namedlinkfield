@@ -1,0 +1,15 @@
+Page:
+  pageWithAnchors:
+    Title: Page with anchors
+    Content: '<h2 id="first-anchor">One</h2><p>text</p><h2 id="second-anchor">Two</h2>'
+  pageWithSingleQuotedAnchor:
+    Title: Page with a single quoted anchor
+    Content: "<h2 id='quoted'>One</h2>"
+  pageWithNamedAnchor:
+    Title: Page with a name attribute
+    Content: '<a name="named">One</a>'
+  pageWithoutAnchors:
+    Title: Page without anchors
+    Content: '<p>Just some text</p>'
+  pageWithoutContent:
+    Title: Page without content

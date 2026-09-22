@@ -1,30 +1,39 @@
 {
-  "name": "restruct/silverstripe-namedlinkfield",
-  "description": "A SilverStripe composite field for having various link types *with title*, in a single field with a nicely styled form.",
-  "type": "silverstripe-vendormodule",
-  "license": "BSD-3-Clause",
-  "authors": [
-    {
-      "name": "Restruct web & apps",
-      "email": "dev@restruct.nl"
+    "name": "restruct/silverstripe-namedlinkfield",
+    "description": "A SilverStripe composite field for having various link types *with title*, in a single field with a nicely styled form.",
+    "type": "silverstripe-vendormodule",
+    "license": "BSD-3-Clause",
+    "authors": [
+        {
+            "name": "Restruct web & apps",
+            "email": "dev@restruct.nl"
+        }
+    ],
+    "require": {
+        "php": "^8.3",
+        "silverstripe/vendor-plugin": "^3",
+        "silverstripe/framework": "^6",
+        "sheadawson/silverstripe-dependentdropdownfield": "^4"
+    },
+    "autoload": {
+        "psr-4": {
+            "Restruct\\SilverStripe\\Forms\\": "src/",
+            "Restruct\\SilverStripe\\ORM\\FieldType\\": "src/",
+            "Restruct\\SilverStripe\\NamedLinkField\\": "src/"
+        }
+    },
+    "extra": {
+        "installer-name": "namedlinkfield",
+        "expose": [
+            "client"
+        ]
+    },
+    "require-dev": {
+        "silverstripe/recipe-testing": "^4"
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Restruct\\NamedLink\\Tests\\": "tests/"
+        }
     }
-  ],
-  "require": {
-    "php": ">=8.3",
-    "silverstripe/vendor-plugin": "^3",
-    "silverstripe/framework": "^6",
-    "sheadawson/silverstripe-dependentdropdownfield": "^4"
-  },
-  "autoload": {
-    "psr-4": {
-      "Restruct\\SilverStripe\\Forms\\": "src/",
-      "Restruct\\SilverStripe\\ORM\\FieldType\\": "src/"
-    }
-  },
-  "extra": {
-    "installer-name": "namedlinkfield",
-    "expose": [
-      "client"
-    ]
-  }
 }

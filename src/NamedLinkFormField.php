@@ -76,7 +76,9 @@ class NamedLinkFormField extends FieldGroup
 
     //////
 
-    public function __construct($name, $title = null)
+    // $value is accepted and ignored, as it always was: dropping it from the signature is a
+    // breaking change for any caller that passes three arguments.
+    public function __construct($name, $title = null, $value = null)
     {
         // create a reference to NamedLinkField
         $this->namedLinkCompositeField = NamedLinkField::create($name);
