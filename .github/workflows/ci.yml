@@ -120,10 +120,21 @@ jobs:
           SS_DATABASE_PASSWORD: root
           SS_DATABASE_NAME: ss_ci
           SS_ENVIRONMENT_TYPE: dev
-          # PHPUnit 11 (SS6) ignores a `flush=1` argument, so the manifest is flushed
-          # through this instead. Harmless on PHPUnit 9.
-          SS_PHPUNIT_FLUSH: 1
-        run: vendor/bin/phpunit --testsuite namedlinkfield
+        # Every run flushes the manifest, and how differs per major:
+        # - SS5 (framework 5, PHPUnit 9): SS_PHPUNIT_FLUSH does not exist in framework 5, so it
+        #   would be inert. The flush is a trailing `flush=1` argument, which only works AFTER an
+        #   explicit test path - `--testsuite x flush=1` makes PHPUnit 9 open "flush=1" as a file
+        #   and fail. So the SS5 legs run by path; phpunit.xml still supplies bootstrap and
+        #   failOnWarning.
+        # - SS6 (framework 6, PHPUnit 11): a `flush=1` argument no longer works; framework 6 reads
+        #   SS_PHPUNIT_FLUSH instead, which also combines with --testsuite. This branch's matrix
+        #   has no SS6 leg today; the branch is kept so a later SS6 leg flushes too.
+        run: |
+          if [ "${{ matrix.silverstripe }}" = "5" ]; then
+            vendor/bin/phpunit vendor/restruct/silverstripe-namedlinkfield/tests flush=1
+          else
+            SS_PHPUNIT_FLUSH=1 vendor/bin/phpunit --testsuite namedlinkfield
+          fi
 
   lint:
     name: Lint PHP ${{ matrix.php }}
