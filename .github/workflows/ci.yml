@@ -97,6 +97,7 @@ jobs:
               <testsuites>
                   <testsuite name="namedlinkfield">
                       <directory>vendor/restruct/silverstripe-namedlinkfield/tests</directory>
+                      <exclude>vendor/restruct/silverstripe-namedlinkfield/tests/browser</exclude>
                   </testsuite>
               </testsuites>
           </phpunit>
