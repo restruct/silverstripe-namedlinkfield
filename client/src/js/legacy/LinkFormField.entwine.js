@@ -111,5 +111,43 @@
         }
     });
 
+    // Reload the page-anchor dropdown when a page is picked in the tree (#43).
+    // DependentDropdownField's own script binds its "change" handler directly to
+    // :input[name=<Name>PageID] when the anchor dropdown matches. At that moment that input is the
+    // server-rendered placeholder inside the TreeDropdownField holder; the admin's TreeDropdownField
+    // entwine then renders its React component into that holder (createRoot), which REPLACES the
+    // placeholder. The handler stays on the detached element, so picking a page never reaches it.
+    // The admin does fire a jQuery "change" on the new hidden input after each pick, and entwine
+    // handles events by delegation, so a rule on the live input sees it whenever it was rendered.
+    // (The commented-out workaround at the top of this file did the same via depends.parent().)
+    $('.LinkFormField .LinkFormFieldPageID input[type=hidden][name$="PageID"]').entwine({
+        onchange: function () {
+            var pageID = this.val();
+            var drop = this.closest('.LinkFormField').find('.LinkFormFieldPageAnchor :input.dependent-dropdown');
+            if (!drop.length) {
+                return;
+            }
+
+            // Same contract as dependentdropdownfield.js: no value = disabled with the 'unselected'
+            // text, otherwise ask the field's load action (?val=<page ID>) for [{k, v}, ...]
+            if (!pageID) {
+                drop.empty().append($('<option />').val('').text(drop.data('unselected')))
+                    .attr('disabled', 'disabled');
+                return;
+            }
+            drop.empty().append($('<option />').val('').text('Loading...')).attr('disabled', 'disabled');
+            $.get(drop.data('link'), { val: pageID }, function (data) {
+                drop.empty().removeAttr('disabled');
+                if (drop.data('empty') || drop.data('empty') === '') {
+                    drop.append($('<option />').val('').text(drop.data('empty')));
+                }
+                $.each(data, function () {
+                    drop.append($('<option />').val(this.k).text(this.v));
+                });
+                // Let chosen (if applied) and change listeners pick up the new options
+                drop.trigger('liszt:updated').trigger('chosen:updated').trigger('change');
+            });
+        }
+    });
 
 })(jQuery);
