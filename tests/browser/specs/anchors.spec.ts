@@ -58,11 +58,12 @@ test('admin/namedlinkpageanchors returns the anchors as JSON to a CMS user only'
     await anonymous.close();
 });
 
-test.fixme('picking a page in the tree loads that page\'s anchors without a save', async ({ page }) => {
-    // FIXME https://github.com/restruct/silverstripe-namedlinkfield/issues/43
-    // The dependent dropdown listens for a jQuery "change" on input[name=LinkPageID], but the
-    // React TreeDropdownField sets that hidden input without firing one, so no load request is
-    // made and the anchor list stays as rendered until the record is saved and reopened.
+test('picking a page in the tree loads that page\'s anchors without a save', async ({ page }) => {
+    // Was https://github.com/restruct/silverstripe-namedlinkfield/issues/43, fixed in 3.0.4 / 2.1.5.
+    // The dependent dropdown listens for a jQuery "change" on input[name=LinkPageID], but it binds
+    // that listener to the TreeDropdownField's server-rendered placeholder input, which the React
+    // render then replaces, so no load request was made and the anchor list stayed as rendered
+    // until the record was saved and reopened.
     await openRecord(page, 'Save record');
     await chooseMode(page, 'Page');
     const loaded = page.waitForRequest((r) => /\/field\/LinkPageAnchor\/load\?/.test(r.url()), { timeout: 5_000 });
