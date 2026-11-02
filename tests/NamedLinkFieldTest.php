@@ -121,6 +121,70 @@ class NamedLinkFieldTest extends SapphireTest
         $this->assertNull($this->linkWith(['Linkmode' => 'File'])->getURL());
     }
 
+    // ------------------------------------------- URL escaping (exactly once, #52)
+
+    /**
+     * Render a template string against a model on either template layer: SSTemplateEngine on
+     * Silverstripe 6, SSViewer::fromString() on 5, so this file runs unchanged on both lines.
+     */
+    private function render(string $template, $model): string
+    {
+        if (class_exists(\SilverStripe\TemplateEngine\SSTemplateEngine::class)) {
+            return (string) (new \SilverStripe\TemplateEngine\SSTemplateEngine())
+                ->renderString($template, new \SilverStripe\View\ViewLayerData($model));
+        }
+
+        return (string) \SilverStripe\View\SSViewer::fromString($template)->process($model);
+    }
+
+    private function holderWith(array $linkValues): TestObject
+    {
+        $object = TestObject::create(['Title' => 'Holder']);
+        foreach ($linkValues as $key => $value) {
+            $object->setField('Link' . $key, $value);
+        }
+
+        return $object;
+    }
+
+    public function testGetUrlReturnsTheUnescapedUrl()
+    {
+        // A PHP caller (redirect, API payload) needs the URL itself, not an HTML-escaped form.
+        $link = $this->linkWith(['Linkmode' => 'URL', 'CustomURL' => 'https://example.org/?a=1&b=2']);
+        $this->assertSame('https://example.org/?a=1&b=2', $link->getURL());
+    }
+
+    public function testGetUrlForAPageAnchorIsUnescaped()
+    {
+        $link = $this->linkWith(['Linkmode' => 'Page', 'PageAnchor' => 'a&b']);
+        $this->assertSame('#a&b', $link->getURL());
+    }
+
+    public function testTemplateEscapesAnAmpersandInTheUrlExactlyOnce()
+    {
+        $object = $this->holderWith(['Linkmode' => 'URL', 'CustomURL' => 'https://example.org/?a=1&b=2']);
+        $this->assertSame(
+            '<a href="https://example.org/?a=1&amp;b=2">',
+            $this->render('<a href="$Link.URL">', $object)
+        );
+    }
+
+    public function testTemplateRawOutputOfTheUrlIsUnescaped()
+    {
+        $object = $this->holderWith(['Linkmode' => 'URL', 'CustomURL' => 'https://example.org/?a=1&b=2']);
+        $this->assertSame('https://example.org/?a=1&b=2', $this->render('$Link.URL.RAW', $object));
+    }
+
+    public function testTemplateStillEscapesQuotesInTheUrl()
+    {
+        // The escaping moved to the template layer; it must not have disappeared altogether.
+        $object = $this->holderWith(['Linkmode' => 'URL', 'CustomURL' => 'https://example.org/"><script>']);
+        $this->assertSame(
+            '<a href="https://example.org/&quot;&gt;&lt;script&gt;">',
+            $this->render('<a href="$Link.URL">', $object)
+        );
+    }
+
     // ------------------------------------------------------- stored on a record
 
     public function testCompositeValuesRoundTripThroughTheDatabase()
