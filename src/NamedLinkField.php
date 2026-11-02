@@ -93,7 +93,9 @@ class NamedLinkField extends DBComposite
     #[Override]
     public function scaffoldFormField(?string $title = null, array $params = []): ?FormField
     {
-        return NamedLinkFormField::create($this->name);
+        # Pass the title through (#53); without it the label always came from the field name.
+        // return NamedLinkFormField::create($this->name);
+        return NamedLinkFormField::create($this->name, $title);
     }
 
     #[Override]
