@@ -21,6 +21,8 @@
         "php": "^8.3",
         "silverstripe/vendor-plugin": "^3",
         "silverstripe/framework": "^6",
+        "silverstripe/admin": "^3",
+        "silverstripe/cms": "^6",
         "sheadawson/silverstripe-dependentdropdownfield": "^4"
     },
     "autoload": {
