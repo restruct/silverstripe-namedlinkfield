@@ -202,7 +202,7 @@ class NamedLinkField extends DBComposite
             case "URL" :
                 $url = $this->getField('CustomURL');
 
-                # Raw on purpose (#52): the output context escapes it ($casting below for
+                # Raw on purpose (#52): the output context escapes it ($casting above, for
                 # templates). Escaping here as well rendered & as &amp;amp;.
                 // return Convert::raw2htmlatt($url);
                 return (string) $url;
