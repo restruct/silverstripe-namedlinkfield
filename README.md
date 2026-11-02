@@ -104,9 +104,9 @@ are set. More is available on the field:
 | `$Link.Email` | `mailto:` plus the address (Email links only) |
 | `$Link.ShortcodeOutput` | the parsed shortcode (Shortcode links only) |
 
-Known issue: `$Link.URL` escapes an `&` in the URL twice, so it reaches the page as `&amp;amp;`
-([#52](https://github.com/restruct/silverstripe-namedlinkfield/issues/52)). Links without `&` are
-not affected.
+`$Link.URL` is escaped once by the template, so it is safe in an attribute as shown above;
+`$Link.URL.RAW` gives the URL as stored. In PHP, `getURL()` returns the raw URL (for a redirect or an
+API payload): escape it yourself before echoing it into HTML.
 
 ## Technical
 

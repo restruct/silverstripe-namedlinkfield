@@ -81,6 +81,18 @@ class NamedLinkField extends DBComposite
     ];
 
     /**
+     * getURL() and getEmail() return raw strings; declaring them as Text pins that a template
+     * escapes them exactly once ($Link.URL), and $Link.URL.RAW gives the URL itself, whatever a
+     * project sets as its default cast (#52).
+     *
+     * @var array
+     */
+    private static $casting = [
+        'URL'   => 'Text',
+        'Email' => 'Text',
+    ];
+
+    /**
      * Returns a CompositeField instance used as a default
      * for form scaffolding.
      *
@@ -190,7 +202,10 @@ class NamedLinkField extends DBComposite
             case "URL" :
                 $url = $this->getField('CustomURL');
 
-                return Convert::raw2htmlatt($url);
+                # Raw on purpose (#52): the output context escapes it ($casting below for
+                # templates). Escaping here as well rendered & as &amp;amp;.
+                // return Convert::raw2htmlatt($url);
+                return (string) $url;
 
             case "Shortcode":
                 // Should probably be handled differently from template (<% if IsShortcode ...)
@@ -207,10 +222,14 @@ class NamedLinkField extends DBComposite
                     $url .= '#' . $anchor;
                 }
 
-                return Convert::raw2htmlatt($url);
+                # Raw, see the URL branch above (#52).
+                // return Convert::raw2htmlatt($url);
+                return $url;
 
             case 'Email' :
-                return Convert::raw2htmlatt($this->getEmail());
+                # Raw, see the URL branch above (#52). '' rather than null, as before.
+                // return Convert::raw2htmlatt($this->getEmail());
+                return (string) $this->getEmail();
 
             default : // File
                 if ($file = $this->File()) {
