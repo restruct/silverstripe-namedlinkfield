@@ -1,6 +1,13 @@
 {
     "name": "restruct/silverstripe-namedlinkfield",
-    "description": "A SilverStripe composite field for having various link types *with title*, in a single field with a nicely styled form.",
+    "description": "A Silverstripe link field with its own title: link to a page (with an optional anchor), a file, a URL, an e-mail address or a shortcode, stored in one composite database field.",
+    "keywords": [
+        "silverstripe",
+        "silverstripe-module",
+        "silverstripe-cms",
+        "link-field",
+        "form-field"
+    ],
     "type": "silverstripe-vendormodule",
     "license": "BSD-3-Clause",
     "authors": [
