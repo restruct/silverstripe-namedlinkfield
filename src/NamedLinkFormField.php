@@ -5,7 +5,9 @@ namespace Restruct\SilverStripe\Forms;
 use Override;
 use Restruct\SilverStripe\NamedLinkField\NamedLinkCtrl;
 use Sheadawson\DependentDropdown\Forms\DependentDropdownField;
+use SilverStripe\Forms\CompositeField;
 use SilverStripe\Forms\FieldGroup;
+use SilverStripe\Forms\FieldList;
 use SilverStripe\Forms\TextField;
 use SilverStripe\CMS\Model\SiteTree;
 use SilverStripe\Forms\TreeDropdownField;
@@ -132,6 +134,55 @@ class NamedLinkFormField extends FieldGroup
             ->setName($name)
             ->setValue('')
             ->setTitle($title ?: FormField::name_to_label($name));
+    }
+
+    /**
+     * Adding this field to a FieldList replaces an existing NamedLinkFormField of the same name
+     * anywhere in that form, as FieldList does for a core data field (#53).
+     *
+     * FieldList::onBeforeInsert() only removes a same-named field when it reports hasData(), and
+     * a FieldGroup does not (making it report data would change how the form loads and saves it).
+     * Without this, re-adding the field under the scaffolded field's name kept both, and the form
+     * threw "a field called '...Title' appears twice". Every FieldList insert (push, unshift,
+     * insertBefore/After, addFieldToTab, replaceField) calls this either before the item is in
+     * the list or right before it returns, so removing an item here never disturbs its loop.
+     *
+     * @param FieldList|null $containerFieldList
+     * @return $this
+     */
+    #[Override]
+    public function setContainerFieldList($containerFieldList)
+    {
+        if ($containerFieldList instanceof FieldList && $this->getName()) {
+            $this->removeSameNamedLinkFields($containerFieldList->rootFieldList());
+        }
+
+        return parent::setContainerFieldList($containerFieldList);
+    }
+
+    /**
+     * Remove every other NamedLinkFormField called like this one from $list and its composites.
+     * Only this class is matched: any other same-named field is left to FieldList itself.
+     */
+    private function removeSameNamedLinkFields(FieldList $list): void
+    {
+        $removed = false;
+        foreach ($list->toArray() as $field) {
+            if ($field !== $this && $field instanceof self && $field->getName() === $this->getName()) {
+                $list->remove($field);
+                $field->setContainerFieldList(null);
+                $removed = true;
+            } elseif ($field instanceof CompositeField) {
+                $this->removeSameNamedLinkFields($field->getChildren());
+            }
+        }
+
+        if ($removed) {
+            # ArrayList::remove() leaves FieldList's data-field caches alone. removeByName()
+            # flushes every list it walks; with $dataFieldOnly it removes only a data field of
+            # this name, which FieldList::onBeforeInsert() has removed already.
+            $list->rootFieldList()->removeByName($this->getName(), true);
+        }
     }
 
     /**

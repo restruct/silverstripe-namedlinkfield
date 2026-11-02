@@ -58,10 +58,12 @@ private static $db = [
 ];
 ```
 
-Build the database. Scaffolding then adds the CMS field by itself, labelled from the field name
-(here "Primary button"). On Silverstripe 6 that includes pages, where it lands after Content.
+Build the database. Scaffolding then adds the CMS field by itself, labelled from `field_labels` or
+else from the field name (here "Primary button"). On Silverstripe 6 that includes pages, where it
+lands after Content.
 
-To place or label it yourself, **remove the scaffolded field first**, then add your own:
+To place or label it yourself, add your own. It replaces the scaffolded field of the same name,
+wherever that is in the form:
 
 ```php
 use Restruct\SilverStripe\Forms\NamedLinkFormField;
@@ -70,17 +72,16 @@ public function getCMSFields()
 {
     $fields = parent::getCMSFields();
 
-    $fields->removeByName('PrimaryButton');
     $fields->insertBefore('Content', NamedLinkFormField::create('PrimaryButton', 'Primary button'));
 
     return $fields;
 }
 ```
 
-Without the `removeByName()`, the form throws "a field called 'PrimaryButtonTitle' appears twice":
-unlike a core field, this field does not replace a field of the same name
-([#53](https://github.com/restruct/silverstripe-namedlinkfield/issues/53)). For the same reason a
-label set in `field_labels` does not reach the scaffolded field yet.
+Before 3.0.5 (2.1.6 on the `v2` line) the scaffolded field stayed, and the form threw "a field
+called 'PrimaryButtonTitle' appears twice"
+([#53](https://github.com/restruct/silverstripe-namedlinkfield/issues/53)). On those versions,
+call `$fields->removeByName('PrimaryButton')` before adding your own.
 
 ### Output it in a template
 

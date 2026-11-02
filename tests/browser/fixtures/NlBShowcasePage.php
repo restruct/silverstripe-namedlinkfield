@@ -42,6 +42,8 @@ class NlBShowcasePage extends Page
         # shows: NamedLinkFormField is a FieldGroup, so adding one under the same name does not
         # replace the scaffolded field (FieldList only replaces data fields) and the form throws
         # "a field called 'PrimaryButtonTitle' appears twice".
+        # Since 3.0.5 (#53) adding them replaces the scaffolded ones without this; the removal
+        # stays, as it is harmless and still what a project on an older version needs.
         $fields->removeByName(['PrimaryButton', 'SecondaryButton', 'Brochure', 'ContactLink']);
         $fields->addFieldsToTab('Root.Main', [
             NamedLinkFormField::create('PrimaryButton', 'Primary button'),
