@@ -1,5 +1,15 @@
 # Changelog
 
+## 2.1.7 (2026-11-17)
+
+### Changed
+
+- **Rebuilt the CMS field bundle with a current build toolchain** (#68, #69). The JS build
+  dependencies now match the 3.x line, which clears the open security advisories in the build
+  tooling (none of it is installed with the module). `client/dist/bundle.js` shrinks from 251 KB to
+  14 KB: reactstrap 9.2 tree-shakes, so the unused react-dom and scheduler copies that 9.0 pulled in
+  are gone. The field itself is unchanged; the files are identical to what 3.x already ships.
+
 ## 2.1.6 (2026-11-02)
 
 ### Fixed
